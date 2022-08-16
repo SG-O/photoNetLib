@@ -38,9 +38,9 @@ public class Printer {
     private String mac;
     private String id;
 
-    public Printer(String ip) throws SocketException, UnknownHostException, UnsupportedEncodingException {
+    public Printer(String ip, int timeout) throws SocketException, UnknownHostException, UnsupportedEncodingException {
         this.ip = ip;
-        io = new NetIO(ip, 3000);
+        io = new NetIO(ip, 3000, timeout);
         AsyncPrinterInformation info = new AsyncPrinterInformation(this, io);
         Thread infoThread = new Thread(info);
         infoThread.start();
@@ -82,10 +82,7 @@ public class Printer {
         if (name.length() < 1) return;
         if (name.length() > 15) return;
         this.name = name;
-        try {
-            NetRegularCommand rename = new NetRegularCommand(io, "U100 '" + name + "'");
-        } catch (UnsupportedEncodingException ignore) {
-        }
+        NetRegularCommand rename = new NetRegularCommand(io, "U100 '" + name + "'");
     }
 
     public String getIp() {

@@ -20,15 +20,15 @@ package de.sg_o.lib.photoNet.netData;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
-import de.sg_o.lib.photoNet.networkIO.NetRequestBinary;
 import de.sg_o.lib.photoNet.photonFile.PhotonFileMeta;
 import de.sg_o.lib.photoNet.photonFile.PhotonFilePreview;
+import de.sg_o.lib.photoNet.printer.Folder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.InvalidParameterException;
 
 public class FileListItem {
+    public static final String FOLDER_UP = "../";
     private final NetIO io;
     private final String baseDir;
     private final String name;
@@ -78,106 +78,85 @@ public class FileListItem {
         return folder;
     }
 
+    @SuppressWarnings("unused")
+    public Folder getFolder() {
+        if (!isFolder()) return null;
+        try {
+            if (name.equals(FOLDER_UP)) {
+                String[] split = baseDir.split("/");
+                if (split.length < 2) {
+                    return new Folder("", io);
+                }
+                StringBuilder parent = new StringBuilder();
+                for (int i = 0; i < (split.length - 1); i++) {
+                    if (i != 0) parent.append("/");
+                    parent.append(split[i]);
+                }
+                return new Folder(parent.toString(), io);
+            }
+            return new Folder(getFullPath(), io);
+        } catch (UnsupportedEncodingException ignore) {
+            return null;
+        }
+    }
+
     public String getFullPath() {
         if (baseDir.length() < 1) return name;
         return baseDir + "/" + name;
     }
 
     @SuppressWarnings("unused")
-    public PhotonFileMeta getMeta() throws UnsupportedEncodingException {
+    public PhotonFileMeta getMeta() {
         if (folder) return null;
 
-        long size = openFile();
-        if (size != this.size) {
+        ByteArrayOutputStream meta = new ByteArrayOutputStream();
+        DataDownload metaDownload = new DataDownload(this, meta, 2, 0, 96, io);
+        metaDownload.run();
+        if (!metaDownload.isComplete()) {
+            return null;
+        }
+        if (meta.size() < 96) {
             return null;
         }
 
-        DataTransferBlock response = readNext();
-        closeFile();
-        if (response == null) return null;
-        if (!response.verifyChecksum()) return null;
         try {
-            return new PhotonFileMeta(response.getData());
+            return new PhotonFileMeta(meta.toByteArray());
         } catch (IOException e) {
             return null;
         }
     }
 
     @SuppressWarnings("unused")
-    public PhotonFilePreview getPreview(long offset) throws UnsupportedEncodingException {
+    public PhotonFilePreview getPreview(long offset) {
         if (folder) return null;
 
-        long size = openFile();
-        if (size != this.size) {
+        ByteArrayOutputStream previewHeader = new ByteArrayOutputStream();
+        DataDownload previewHeaderDownload = new DataDownload(this, previewHeader, 2, offset, 16, io);
+        previewHeaderDownload.run();
+        if (!previewHeaderDownload.isComplete()) {
             return null;
         }
-
-        DataTransferBlock response = readFromOffset(offset);
-        if (response == null) {
-            closeFile();
-            return null;
-        }
-        if (!response.verifyChecksum()) {
-            closeFile();
+        if (previewHeader.size() < 16) {
             return null;
         }
         PhotonFilePreview preview;
         try {
-            preview = new PhotonFilePreview(response.getData());
+            preview = new PhotonFilePreview(previewHeader.toByteArray());
         } catch (IOException e) {
-            closeFile();
             return null;
         }
-        byte[] data = new byte[(int) preview.getImgDataLength()];
-        offset = preview.getImgDataOffset();
-        int glide = 0;
-        while (glide < data.length) {
-            response = readFromOffset(offset + glide);
-            if (response == null) {
-                closeFile();
-                return null;
-            }
-            if (!response.verifyChecksum()) {
-                closeFile();
-                return null;
-            }
-            int length = response.getData().length;
-            if (length > data.length - glide) {
-                length = data.length - glide;
-            }
-            System.arraycopy(response.getData(), 0, data, glide, length);
-            glide += length;
+
+        ByteArrayOutputStream previewData = new ByteArrayOutputStream();
+        DataDownload previewDataDownload = new DataDownload(this, previewData, 2, preview.getImgDataOffset(), preview.getImgDataLength(), io);
+        previewDataDownload.run();
+        if (!previewHeaderDownload.isComplete()) {
+            return null;
         }
-        closeFile();
-        preview.addData(data);
+        preview.addData(previewData.toByteArray());
         return preview;
     }
 
-    private DataTransferBlock readNext() {
-        NetRequestBinary data = new NetRequestBinary(io, "M3000");
-        while (!data.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        if (data.getResponse() == null) return null;
-        return new DataTransferBlock(data.getResponse());
-    }
-
-    private DataTransferBlock readFromOffset(long offset) {
-        NetRequestBinary data = new NetRequestBinary(io, "M3001 I" + offset);
-        while (!data.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        if (data.getResponse() == null) return null;
-        return new DataTransferBlock(data.getResponse());
-    }
-
-    private long openFile() throws UnsupportedEncodingException {
+    public long openFile() throws UnsupportedEncodingException {
         NetRegularCommand statusRequest = new NetRegularCommand(io, "M4000");
         while (!statusRequest.isExecuted()) {
             try {
@@ -186,7 +165,7 @@ public class FileListItem {
             }
         }
         if (statusRequest.getResponse() == null) return -1;
-        Status stat = new Status();
+        Status stat = new Status(statusRequest.getResponse());
         stat.update(statusRequest.getResponse());
         if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return -1;
         closeFile();
@@ -204,7 +183,7 @@ public class FileListItem {
         return Integer.parseInt(fileRequest.getResponse().split(":")[1]) & 0xFFFFFFFFL;
     }
 
-    private void closeFile() throws UnsupportedEncodingException {
+    public void closeFile() throws UnsupportedEncodingException {
         NetRegularCommand closePrevious = new NetRegularCommand(io, "M22");
         while (!closePrevious.isExecuted()) {
             try {
@@ -212,6 +191,16 @@ public class FileListItem {
             } catch (InterruptedException ignore) {
             }
         }
+    }
+
+    @SuppressWarnings("unused")
+    public DataDownload getDownload(OutputStream dataStream, int maxRetries) {
+        return new DataDownload(this, dataStream, maxRetries, 0, 0, io);
+    }
+
+    @SuppressWarnings("unused")
+    public DataUpload getUpload(InputStream dataStream, int maxRetries) {
+        return new DataUpload(this, dataStream, maxRetries, io);
     }
 
     @SuppressWarnings("unused")
@@ -227,7 +216,7 @@ public class FileListItem {
 
     @SuppressWarnings("unused")
     public void print() throws UnsupportedEncodingException {
-        NetRegularCommand delete = new NetRegularCommand(io, "M6030 ':" + getFullPath() + "'");
+        NetRegularCommand print = new NetRegularCommand(io, "M6030 ':" + getFullPath() + "'");
     }
 
     @Override

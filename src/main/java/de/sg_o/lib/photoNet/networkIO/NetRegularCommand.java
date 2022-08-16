@@ -18,7 +18,6 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class NetRegularCommand {
@@ -33,7 +32,7 @@ public class NetRegularCommand {
         }
     }
 
-    public NetRegularCommand(NetIO device, String command) throws UnsupportedEncodingException {
+    public NetRegularCommand(NetIO device, String command) {
         this(device, command, false);
     }
 

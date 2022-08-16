@@ -27,23 +27,25 @@ import java.util.TreeMap;
 public class Environment {
     private final Discover available;
     private final ArrayList<Printer> connected;
+    private int timeout;
 
-    public Environment(String connected, int discoveryTimeout) {
+    public Environment(String connected, int timeout) {
         this.connected = new ArrayList<>();
+        this.timeout = timeout;
         if (connected != null) {
             String[] printers = connected.split(";");
             if (printers.length > 0) {
                 for (String p : printers) {
                     if (p.length() < 1) continue;
                     try {
-                        Printer pr = new Printer(p);
+                        Printer pr = new Printer(p, timeout);
                         this.connected.add(pr);
                     } catch (Exception ignored) {
                     }
                 }
             }
         }
-        available = new Discover(discoveryTimeout);
+        available = new Discover(timeout);
         available.update();
     }
 
@@ -73,7 +75,7 @@ public class Environment {
             if (p.getIp().equals(ip)) return p;
         }
         try {
-            Printer p = new Printer(ip);
+            Printer p = new Printer(ip, timeout);
             connected.add(p);
             return p;
         } catch (Exception ignored) {

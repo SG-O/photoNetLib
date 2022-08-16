@@ -36,11 +36,11 @@ public class NetWorker implements Runnable {
 
     private final byte[] buf = new byte[2048];
 
-    NetWorker(InetAddress address, int port) throws SocketException {
+    NetWorker(InetAddress address, int port, int timeout) throws SocketException {
         this.address = address;
         this.port = port;
         socket = new DatagramSocket();
-        socket.setSoTimeout(5000);
+        socket.setSoTimeout(timeout);
     }
 
     public void run() {

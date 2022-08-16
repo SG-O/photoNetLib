@@ -30,22 +30,22 @@ public class NetIO {
     private long counter = 0;
     private long executed = -1;
 
-    public NetIO(InetAddress address, int port) throws SocketException {
+    public NetIO(InetAddress address, int port, int timeout) throws SocketException {
         if (address == null) throw new SocketException("Address Null");
         this.address = address;
         this.port = port;
-        start();
+        start(timeout);
     }
 
-    public NetIO(String address, int port) throws UnknownHostException, SocketException {
-        this(InetAddress.getByName(address), port);
+    public NetIO(String address, int port, int timeout) throws UnknownHostException, SocketException {
+        this(InetAddress.getByName(address), port, timeout);
     }
 
-    public void start() throws SocketException {
+    public void start(int timeout) throws SocketException {
         if (isAlive()) return;
         counter = 0;
         executed = -1;
-        worker = new NetWorker(address, port);
+        worker = new NetWorker(address, port, timeout);
         workerThread = new Thread(worker);
         workerThread.start();
     }

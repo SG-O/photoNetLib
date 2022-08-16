@@ -22,8 +22,6 @@ import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
-import java.io.UnsupportedEncodingException;
-
 public class AsyncStatusUpdate implements Runnable {
     private final NetIO io;
     private final Status status;
@@ -81,14 +79,11 @@ public class AsyncStatusUpdate implements Runnable {
                 }
             }
             if (lastUpdate + interval < System.currentTimeMillis()) {
-                try {
-                    updateRequest = new NetRegularCommand(io, "M4000");
-                    selectedFileRequest = new NetRegularCommand(io, "M4006");
-                    statusUpdated = false;
-                    fileUpdated = false;
-                    lastUpdate = System.currentTimeMillis();
-                } catch (UnsupportedEncodingException ignore) {
-                }
+                updateRequest = new NetRegularCommand(io, "M4000");
+                selectedFileRequest = new NetRegularCommand(io, "M4006");
+                statusUpdated = false;
+                fileUpdated = false;
+                lastUpdate = System.currentTimeMillis();
             }
         }
     }

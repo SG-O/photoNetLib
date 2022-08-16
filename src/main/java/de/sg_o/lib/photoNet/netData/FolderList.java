@@ -20,19 +20,33 @@ package de.sg_o.lib.photoNet.netData;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 
-import java.util.LinkedList;
+import java.util.TreeMap;
 
 public class FolderList {
-    private final LinkedList<FileListItem> items = new LinkedList<>();
-    private String path;
+    private final TreeMap<String, FileListItem> items = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final String path;
+    private final NetIO io;
 
     public FolderList(String path, String response, NetIO io) {
-        if (response == null) return;
+        this.io = io;
         this.path = path;
+        if (response == null) return;
         String[] lines = response.split("\\r?\\n");
+        FileListItem tmp;
+        if (path != null) {
+            if (!path.equals("")) {
+                tmp = new FileListItem(path, FileListItem.FOLDER_UP, 0, true, io);
+                items.put("-" + tmp.getName(), tmp);
+            }
+        }
         for (int i = 1; i < (lines.length - 2); i++) {
             try {
-                items.add(new FileListItem(path, lines[i], io));
+                tmp = new FileListItem(path, lines[i], io);
+                if (tmp.isFolder()) {
+                    items.put("-" + tmp.getName(), tmp);
+                } else {
+                    items.put(tmp.getName(), tmp);
+                }
             } catch (Exception ignored) {
             }
         }
@@ -44,8 +58,18 @@ public class FolderList {
     }
 
     @SuppressWarnings("unused")
-    public LinkedList<FileListItem> getItems() {
+    public TreeMap<String, FileListItem> getItems() {
         return items;
+    }
+
+    @SuppressWarnings("unused")
+    public FileListItem newFile(String fileName, long size) {
+        if (fileName == null) return null;
+        if (fileName.length() < 1) return null;
+
+        if (items.containsKey(fileName)) return null;
+
+        return new FileListItem(path, fileName, size, false, io);
     }
 
     @Override

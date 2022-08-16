@@ -18,34 +18,13 @@
 
 package de.sg_o.lib.photoNet.printer;
 
-import de.sg_o.lib.photoNet.netData.FolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
-import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
 import java.io.UnsupportedEncodingException;
 
-public class RootFolder {
-    private final NetIO io;
-    private NetRegularCommand updateRootFolder;
+public class RootFolder extends Folder {
 
     public RootFolder(NetIO io) throws UnsupportedEncodingException {
-        this.io = io;
-        update();
-    }
-
-    public void update() throws UnsupportedEncodingException {
-        updateRootFolder = new NetRegularCommand(io, "M20 ''");
-    }
-
-    @SuppressWarnings("unused")
-    public FolderList getFolder() {
-        if (!updateRootFolder.isExecuted()) return null;
-        System.out.println(updateRootFolder.getError());
-        return new FolderList("", updateRootFolder.getResponse(), io);
-    }
-
-    @SuppressWarnings("unused")
-    public boolean isUpToDate() {
-        return updateRootFolder.isExecuted();
+        super("", io);
     }
 }

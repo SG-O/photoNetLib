@@ -32,6 +32,7 @@ public class PhotonFilePreview {
 
     public PhotonFilePreview(byte[] model) throws IOException {
         if (model == null) throw new IOException("Input null");
+        if (model.length < 16) throw new IOException("Input to short");
         imgWidth = readInt(model, 0);
         imgHeight = readInt(model, 4);
         imgDataOffset = ((long) readInt(model, 8)) & 0xFFFFFFFFL;

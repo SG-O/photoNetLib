@@ -21,7 +21,6 @@ package de.sg_o.lib.photoNet.printer;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,11 +37,7 @@ public class AsyncPrinterInformation implements Runnable {
 
     public void run() {
         NetRegularCommand statusRequest;
-        try {
-            statusRequest = new NetRegularCommand(io, "M99999");
-        } catch (UnsupportedEncodingException ignore) {
-            return;
-        }
+        statusRequest = new NetRegularCommand(io, "M99999");
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
