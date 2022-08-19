@@ -25,6 +25,7 @@ import static de.sg_o.lib.photoNet.photonFile.FileRead.readInt;
 
 @SuppressWarnings("unused")
 public class PhotonLayer {
+    public static final long HEADER_SPACING = 36;
     private final float absolutePosition;
     private final float exposureTime;
     private final float offTime;
@@ -33,10 +34,9 @@ public class PhotonLayer {
 
     private final int screenWidth;
     private final int screenHeight;
-    private byte[] imgData;
 
     @SuppressWarnings("unused")
-    public PhotonLayer(byte[] model, long index, int screenWidth, int screenHeight) throws IOException {
+    public PhotonLayer(byte[] model, int screenWidth, int screenHeight) throws IOException {
         if (model == null) throw new IOException("File null");
         absolutePosition = readFloat(model, 0);
         exposureTime = readFloat(model, 4);
@@ -58,11 +58,10 @@ public class PhotonLayer {
             int repeat = (datum & 0x7F);
             for (int j = 0; j < repeat; j++) {
                 if (count >= max) return img;
-                img[count] = (color * 255);
+                img[count] = (color * 0xFFFFFFFF);
                 count++;
             }
         }
-        System.out.println(max + ":" + count);
         return img;
     }
 
@@ -92,13 +91,10 @@ public class PhotonLayer {
     }
 
     @SuppressWarnings("unused")
-    public void addData(byte[] model) {
-        System.arraycopy(model, 0, imgData, 0, imgData.length);
-    }
-
-    @SuppressWarnings("unused")
-    public int[] getImage() {
-        return decodeImage(imgData, screenWidth, screenHeight);
+    public int[] getImage(byte[] data) {
+        if (data == null) return null;
+        if (data.length < imgDataLength) return null;
+        return decodeImage(data, screenWidth, screenHeight);
     }
 
     @Override

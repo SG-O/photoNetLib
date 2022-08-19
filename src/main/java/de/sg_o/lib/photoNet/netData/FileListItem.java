@@ -35,6 +35,9 @@ public class FileListItem {
     private final long size;
     private final boolean folder;
 
+    private PhotonFilePreview photonFilePreview;
+    private PhotonFileMeta photonFileMeta;
+
     @SuppressWarnings("unused")
     public FileListItem(String baseDir, String name, long size, boolean folder, NetIO io) {
         this.baseDir = baseDir;
@@ -108,6 +111,7 @@ public class FileListItem {
     @SuppressWarnings("unused")
     public PhotonFileMeta getMeta() {
         if (folder) return null;
+        if (this.photonFileMeta != null) return this.photonFileMeta;
 
         ByteArrayOutputStream meta = new ByteArrayOutputStream();
         DataDownload metaDownload = new DataDownload(this, meta, 2, 0, 96, io);
@@ -120,7 +124,8 @@ public class FileListItem {
         }
 
         try {
-            return new PhotonFileMeta(meta.toByteArray());
+            this.photonFileMeta = new PhotonFileMeta(meta.toByteArray());
+            return this.photonFileMeta;
         } catch (IOException e) {
             return null;
         }
@@ -129,7 +134,7 @@ public class FileListItem {
     @SuppressWarnings("unused")
     public PhotonFilePreview getPreview(long offset) {
         if (folder) return null;
-
+        if (this.photonFilePreview != null) return this.photonFilePreview;
         ByteArrayOutputStream previewHeader = new ByteArrayOutputStream();
         DataDownload previewHeaderDownload = new DataDownload(this, previewHeader, 2, offset, 16, io);
         previewHeaderDownload.run();
@@ -153,6 +158,7 @@ public class FileListItem {
             return null;
         }
         preview.addData(previewData.toByteArray());
+        this.photonFilePreview = preview;
         return preview;
     }
 

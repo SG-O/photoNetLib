@@ -57,8 +57,8 @@ public class PhotonFileMeta {
         bottomExposureTime = FileRead.readFloat(model, 40);
         offTime = FileRead.readFloat(model, 44);
         bottomLayers = FileRead.readInt(model, 48);
-        screenHeight = FileRead.readInt(model, 52);
-        screenWidth = FileRead.readInt(model, 56);
+        screenWidth = FileRead.readInt(model, 52);
+        screenHeight = FileRead.readInt(model, 56);
         previewHeaderOffset = ((long) FileRead.readInt(model, 60)) & 0xFFFFFFFFL;
         layerHeadersOffset = ((long) FileRead.readInt(model, 64)) & 0xFFFFFFFFL;
         nrLayers = FileRead.readInt(model, 68);
@@ -154,6 +154,10 @@ public class PhotonFileMeta {
             allLayers[i] = layerHeadersOffset + (i * 36L);
         }
         return allLayers;
+    }
+
+    public int getAntiAliasing() {
+        return antiAliasing;
     }
 
     @Override
