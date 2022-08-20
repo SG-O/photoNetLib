@@ -27,6 +27,8 @@ public abstract class DataTransfer {
     protected final AtomicBoolean complete = new AtomicBoolean();
     protected final AtomicBoolean failed = new AtomicBoolean();
 
+    protected float transferSpeed = 0.0f; //in B/s
+
     public abstract void run();
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -58,4 +60,9 @@ public abstract class DataTransfer {
 
     @SuppressWarnings("unused")
     public abstract void end();
+
+    @SuppressWarnings("unused")
+    public float getTransferSpeed() {
+        return transferSpeed;
+    }
 }

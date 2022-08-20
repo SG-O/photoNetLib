@@ -18,30 +18,36 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class NetIO {
-    InetAddress address;
-    int port;
-    private NetWorker worker;
-    private Thread workerThread;
-    private long counter = 0;
-    private long executed = -1;
+public class NetIO implements Serializable {
+    private static final long serialVersionUID = -3459483319748283239L;
+    private final InetAddress address;
+    private final int port;
+    private final int timeout;
+    private transient NetWorker worker;
+    private transient Thread workerThread;
+    private transient long counter = 0;
+    private transient long executed = -1;
 
     public NetIO(InetAddress address, int port, int timeout) throws SocketException {
         if (address == null) throw new SocketException("Address Null");
         this.address = address;
         this.port = port;
-        start(timeout);
+        this.timeout = timeout;
+        start();
     }
 
     public NetIO(String address, int port, int timeout) throws UnknownHostException, SocketException {
         this(InetAddress.getByName(address), port, timeout);
     }
 
-    public void start(int timeout) throws SocketException {
+    public void start() throws SocketException {
         if (isAlive()) return;
         counter = 0;
         executed = -1;
@@ -95,5 +101,18 @@ public class NetIO {
         }
         worker = null;
         workerThread = null;
+    }
+
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        worker = null;
+        workerThread = null;
+        counter = 0;
+        executed = -1;
+        start();
+    }
+
+    private void writeObject(java.io.ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
     }
 }

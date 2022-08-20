@@ -61,6 +61,7 @@ public class DataUpload extends DataTransfer {
                 return;
             }
             byte[] buffer = new byte[blockSize];
+            long time = System.currentTimeMillis();
             int bytesRead;
             while ((bytesRead = dataStream.read(buffer, 0, buffer.length)) != -1) {
                 if (aborted.get()) {
@@ -93,6 +94,8 @@ public class DataUpload extends DataTransfer {
                 }
                 retries = 0;
                 glide += bytesRead;
+                super.transferSpeed = ((float) bytesRead) / ((float) (System.currentTimeMillis() - time) / 1000.0f);
+                time = System.currentTimeMillis();
             }
             dataStream.close();
             endFile();
@@ -124,7 +127,7 @@ public class DataUpload extends DataTransfer {
         }
     }
 
-    private boolean createFile() throws UnsupportedEncodingException {
+    private boolean createFile() {
         if (file == null) return false;
         if (file.getName() == null) return false;
         if (file.getName().length() < 1) return false;
@@ -161,7 +164,7 @@ public class DataUpload extends DataTransfer {
         closeFile();
     }
 
-    private void closeFile() throws UnsupportedEncodingException {
+    private void closeFile() {
         NetRegularCommand closeFile = new NetRegularCommand(io, "M22");
         while (!closeFile.isExecuted()) {
             try {
@@ -230,11 +233,10 @@ public class DataUpload extends DataTransfer {
 
     @Override
     public String toString() {
-        String sb = "DataUpload{" + "complete=" + complete +
+        return "DataUpload{" + "complete=" + complete +
                 ", failed=" + failed +
                 ", file='" + file + '\'' +
                 ", maxRetries=" + maxRetries +
                 '}';
-        return sb;
     }
 }

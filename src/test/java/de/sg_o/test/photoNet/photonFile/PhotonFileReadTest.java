@@ -30,15 +30,19 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class PhotonFileReadTest {
     @Test
     void fileReadTest() throws URISyntaxException, IOException {
-        File testFile = new File(this.getClass().getResource("/testFile.photon").toURI());
+        URL testFileURL = this.getClass().getResource("/testFile.photon");
+        assertNotNull(testFileURL);
+        File testFile = new File(testFileURL.toURI());
         assertNotNull(testFile);
-        PhotonFile photonFile = new PhotonFile(testFile);
+        PhotonFile photonFile = new PhotonFile(Files.newInputStream(testFile.toPath()), testFile.length());
         photonFile.parse();
         PhotonFileMeta meta = photonFile.getMeta();
         PhotonFilePreview preview = photonFile.getPreview();
@@ -68,13 +72,17 @@ class PhotonFileReadTest {
 
         assertEquals(toStringExpected, photonFile.toString());
 
-        BufferedImage tmp = ImageIO.read(this.getClass().getResource("/preview.png"));
+        URL refFile = this.getClass().getResource("/preview.png");
+        assertNotNull(refFile);
+        BufferedImage tmp = ImageIO.read(refFile);
         BufferedImage previewFile = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
         previewFile.getGraphics().drawImage(tmp, 0, 0, null);
         int[] previewRef = ((DataBufferInt) previewFile.getRaster().getDataBuffer()).getData();
         assertArrayEquals(previewRef, preview.getImage());
 
-        tmp = ImageIO.read(this.getClass().getResource("/thumbnail.png"));
+        refFile = this.getClass().getResource("/thumbnail.png");
+        assertNotNull(refFile);
+        tmp = ImageIO.read(refFile);
         BufferedImage thumbnailFile = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
         thumbnailFile.getGraphics().drawImage(tmp, 0, 0, null);
         int[] thumbnailRef = ((DataBufferInt) thumbnailFile.getRaster().getDataBuffer()).getData();
@@ -85,7 +93,9 @@ class PhotonFileReadTest {
         assert (Math.abs(60.0f - layer00.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer00.getOffTime()) < 0.01);
 
-        tmp = ImageIO.read(this.getClass().getResource("/layer00.png"));
+        refFile = this.getClass().getResource("/layer00.png");
+        assertNotNull(refFile);
+        tmp = ImageIO.read(refFile);
         BufferedImage layerFile00 = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
         layerFile00.getGraphics().drawImage(tmp, 0, 0, null);
         int[] layerRef00 = ((DataBufferInt) layerFile00.getRaster().getDataBuffer()).getData();
@@ -97,11 +107,16 @@ class PhotonFileReadTest {
         assert (Math.abs(11.0f - layer40.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer40.getOffTime()) < 0.01);
 
-        tmp = ImageIO.read(this.getClass().getResource("/layer40.png"));
+        refFile = this.getClass().getResource("/layer40.png");
+        assertNotNull(refFile);
+        tmp = ImageIO.read(refFile);
         BufferedImage layerFile40 = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
         layerFile40.getGraphics().drawImage(tmp, 0, 0, null);
         int[] layerRef40 = ((DataBufferInt) layerFile40.getRaster().getDataBuffer()).getData();
         assertArrayEquals(layerRef40, photonFile.getLayerImage(40));
+
+        layerAct00 = photonFile.getLayerImage(0);
+        assertArrayEquals(layerRef00, layerAct00);
 
         try {
             new PhotonFileMeta(null);

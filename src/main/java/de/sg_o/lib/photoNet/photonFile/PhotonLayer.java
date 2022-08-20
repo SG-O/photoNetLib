@@ -35,6 +35,9 @@ public class PhotonLayer {
     private final int screenWidth;
     private final int screenHeight;
 
+    private byte[] imageData = null;
+    private int backgroundColor = 0x00000000;
+
     @SuppressWarnings("unused")
     public PhotonLayer(byte[] model, int screenWidth, int screenHeight) throws IOException {
         if (model == null) throw new IOException("File null");
@@ -49,7 +52,7 @@ public class PhotonLayer {
         this.screenHeight = screenHeight;
     }
 
-    private static int[] decodeImage(byte[] data, int width, int height) {
+    private int[] decodeImage(byte[] data, int width, int height) {
         int max = width * height;
         int[] img = new int[max];
         int count = 0;
@@ -58,7 +61,9 @@ public class PhotonLayer {
             int repeat = (datum & 0x7F);
             for (int j = 0; j < repeat; j++) {
                 if (count >= max) return img;
-                img[count] = (color * 0xFFFFFFFF);
+                int x = (width - (count % width)) - 1; //Why is the layer flipped? WHY???
+                int y = count / width;
+                img[x + (y * width)] = (color * 0xFFFFFFFF) | backgroundColor;
                 count++;
             }
         }
@@ -88,6 +93,20 @@ public class PhotonLayer {
     @SuppressWarnings("unused")
     public int getImgDataLength() {
         return imgDataLength;
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public void setImageData(byte[] data) {
+        this.imageData = data;
+    }
+
+    public int[] getImage() {
+        if (imageData == null) return null;
+        if (imageData.length < imgDataLength) return null;
+        return decodeImage(imageData, screenWidth, screenHeight);
     }
 
     @SuppressWarnings("unused")

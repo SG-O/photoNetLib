@@ -68,13 +68,13 @@ public class DataDownload extends DataTransfer {
                 }
                 return;
             }
-
             if ((downloadLength < size) && (downloadLength > 0)) {
                 size = downloadLength;
             } else {
                 downloadLength = size;
             }
             DataTransferBlock response;
+            long time = System.currentTimeMillis();
             while (glide < size) {
                 if (aborted.get()) {
                     fail();
@@ -120,6 +120,8 @@ public class DataDownload extends DataTransfer {
                 dataStream.write(response.getData(), 0, length);
                 retries = 0;
                 glide += length;
+                super.transferSpeed = ((float) length) / ((float) (System.currentTimeMillis() - time) / 1000.0f);
+                time = System.currentTimeMillis();
             }
             dataStream.close();
             file.closeFile();

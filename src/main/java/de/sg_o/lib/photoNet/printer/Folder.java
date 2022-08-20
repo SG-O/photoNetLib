@@ -22,13 +22,16 @@ import de.sg_o.lib.photoNet.netData.FolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
-public class Folder {
+@SuppressWarnings("SerializableHasSerializationMethods")
+public class Folder implements Serializable {
+    private static final long serialVersionUID = -8105907103389418019L;
     private final String path;
     private final NetIO io;
 
-    private NetRegularCommand updateRootFolder;
+    private transient NetRegularCommand updateFolder;
 
     public Folder(String path, NetIO io) throws UnsupportedEncodingException {
         this.path = path;
@@ -36,20 +39,24 @@ public class Folder {
     }
 
     public void update() throws UnsupportedEncodingException {
-        updateRootFolder = new NetRegularCommand(io, "M20 '" + path + "'");
+        updateFolder = new NetRegularCommand(io, "M20 '" + path + "'");
+    }
+
+    @SuppressWarnings("unused")
+    public String getPath() {
+        return path;
     }
 
     @SuppressWarnings("unused")
     public FolderList getFolderList() {
-        if (updateRootFolder == null) return null;
-        if (!updateRootFolder.isExecuted()) return null;
-        System.out.println(updateRootFolder.getError());
-        return new FolderList(path, updateRootFolder.getResponse(), io);
+        if (updateFolder == null) return null;
+        if (!updateFolder.isExecuted()) return null;
+        return new FolderList(path, updateFolder.getResponse(), io);
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
     public boolean isUpToDate() {
-        if (updateRootFolder == null) return false;
-        return updateRootFolder.isExecuted();
+        if (updateFolder == null) return false;
+        return updateFolder.isExecuted();
     }
 }
