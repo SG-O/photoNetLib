@@ -19,20 +19,16 @@
 package de.sg_o.lib.photoNet.netData;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
-import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
-import de.sg_o.lib.photoNet.networkIO.NetSendBinary;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
-public class DataUpload extends DataTransfer {
-    private static final int blockSize = 1280;
-    private final FileListItem file;
-    private final InputStream dataStream;
-    private final int maxRetries;
-    private final NetIO io;
-    private int glide = 0;
-    private int retries = 0;
+public abstract class DataUpload extends DataTransfer {
+
+    protected final FileListItem file;
+    protected final InputStream dataStream;
+    protected final int maxRetries;
+    protected final NetIO io;
+    protected int retries = 0;
 
     public DataUpload(FileListItem file, InputStream dataStream, int maxRetries, NetIO io) {
         this.file = file;
@@ -42,136 +38,6 @@ public class DataUpload extends DataTransfer {
         }
         this.maxRetries = maxRetries;
         this.io = io;
-    }
-
-    @Override
-    public void run() {
-        if (complete.get()) return;
-
-        failed.set(false);
-        running.set(true);
-
-        try {
-            if (!createFile()) {
-                fail();
-                return;
-            }
-            if (dataStream == null) {
-                fail();
-                return;
-            }
-            byte[] buffer = new byte[blockSize];
-            long time = System.currentTimeMillis();
-            int bytesRead;
-            while ((bytesRead = dataStream.read(buffer, 0, buffer.length)) != -1) {
-                if (aborted.get()) {
-                    fail();
-                    return;
-                }
-                while (paused.get()) {
-                    try {
-                        if (aborted.get()) {
-                            fail();
-                            return;
-                        }
-                        Thread.sleep(100);
-                    } catch (InterruptedException ignore) {
-                    }
-                }
-                byte[] toSend = buffer;
-                if (bytesRead < buffer.length) {
-                    toSend = new byte[bytesRead];
-                    System.arraycopy(buffer, 0, toSend, 0, bytesRead);
-                }
-                if (!sendData(toSend, glide)) {
-                    if (retries < maxRetries) {
-                        retries++;
-                        continue;
-                    } else {
-                        fail();
-                        return;
-                    }
-                }
-                retries = 0;
-                glide += bytesRead;
-                super.transferSpeed = ((float) bytesRead) / ((float) (System.currentTimeMillis() - time) / 1000.0f);
-                time = System.currentTimeMillis();
-            }
-            dataStream.close();
-            endFile();
-            complete.set(true);
-            running.set(false);
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    private boolean sendData(byte[] data, int offset) {
-        DataTransferBlock block = new DataTransferBlock(data, offset);
-        NetSendBinary send = new NetSendBinary(io, block.generate());
-        while (!send.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        return !send.isError();
-    }
-
-    private void fail() {
-        failed.set(true);
-        running.set(false);
-        try {
-            endFile();
-        } catch (UnsupportedEncodingException ignore) {
-        }
-    }
-
-    private boolean createFile() {
-        if (file == null) return false;
-        if (file.getName() == null) return false;
-        if (file.getName().length() < 1) return false;
-        NetRegularCommand statusRequest = new NetRegularCommand(io, "M4000");
-        while (!statusRequest.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        if (statusRequest.getResponse() == null) return false;
-        Status stat = new Status(statusRequest.getResponse());
-        stat.update(statusRequest.getResponse());
-        if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return false;
-        closeFile();
-        NetRegularCommand fileRequest = new NetRegularCommand(io, "M28 " + file.getFullPath());
-        while (!fileRequest.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        return true;
-    }
-
-    private void endFile() throws UnsupportedEncodingException {
-        NetRegularCommand endFile = new NetRegularCommand(io, "M29");
-        while (!endFile.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
-        closeFile();
-    }
-
-    private void closeFile() {
-        NetRegularCommand closeFile = new NetRegularCommand(io, "M22");
-        while (!closeFile.isExecuted()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-        }
     }
 
     @Override
@@ -186,10 +52,7 @@ public class DataUpload extends DataTransfer {
     }
 
     @Override
-    public float getProgress() {
-        if (file.getSize() < 1L) return 0;
-        return (float) glide / (float) file.getSize();
-    }
+    public abstract float getProgress();
 
     @Override
     public String getName() {
@@ -225,10 +88,7 @@ public class DataUpload extends DataTransfer {
 
     @Override
     public void end() {
-        try {
-            if (file != null) file.closeFile();
-        } catch (UnsupportedEncodingException ignore) {
-        }
+        if (file != null) file.closeFile();
     }
 
     @Override

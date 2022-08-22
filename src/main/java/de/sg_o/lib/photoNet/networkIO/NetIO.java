@@ -23,37 +23,44 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class NetIO implements Serializable {
+public abstract class NetIO implements Serializable {
+    protected final InetAddress address;
+
     private static final long serialVersionUID = -3459483319748283239L;
-    private final InetAddress address;
-    private final int port;
-    private final int timeout;
+    protected final int port;
+    protected final int timeout;
+    private final DeviceType deviceType;
     private transient NetWorker worker;
     private transient Thread workerThread;
     private transient long counter = 0;
     private transient long executed = -1;
 
-    public NetIO(InetAddress address, int port, int timeout) throws SocketException {
+    public NetIO(InetAddress address, int port, int timeout, DeviceType deviceType) throws SocketException {
         if (address == null) throw new SocketException("Address Null");
         this.address = address;
         this.port = port;
         this.timeout = timeout;
+        this.deviceType = deviceType;
         start();
     }
 
-    public NetIO(String address, int port, int timeout) throws UnknownHostException, SocketException {
-        this(InetAddress.getByName(address), port, timeout);
+    protected void start(NetWorker worker) {
+        if (isAlive()) return;
+        this.counter = 0;
+        this.executed = -1;
+        this.worker = worker;
+        this.workerThread = new Thread(worker);
+        this.workerThread.start();
     }
 
-    public void start() throws SocketException {
-        if (isAlive()) return;
-        counter = 0;
-        executed = -1;
-        worker = new NetWorker(address, port, timeout);
-        workerThread = new Thread(worker);
-        workerThread.start();
+    protected abstract void start() throws SocketException;
+
+    public DeviceType getDeviceType() {
+        return deviceType;
     }
 
     public NetRequestResponse send(byte[] data) {
@@ -91,6 +98,38 @@ public class NetIO implements Serializable {
         return counter;
     }
 
+    public enum DeviceType {
+        CBD(0),
+        ACT(1),
+        UNKNOWN(2);
+
+        private static final Map<Integer, DeviceType> IdMap = Collections.unmodifiableMap(initializeMapping());
+        private final int ID;
+
+        DeviceType(int ID) {
+            this.ID = ID;
+        }
+
+        public static DeviceType getFromID(int ID) {
+            if (IdMap.containsKey(ID)) {
+                return IdMap.get(ID);
+            }
+            return UNKNOWN;
+        }
+
+        private static HashMap<Integer, DeviceType> initializeMapping() {
+            HashMap<Integer, DeviceType> IdMap = new HashMap<>();
+            for (DeviceType s : DeviceType.values()) {
+                IdMap.put(s.ID, s);
+            }
+            return IdMap;
+        }
+
+        public int getID() {
+            return ID;
+        }
+    }
+
     public void stop() {
         worker.stop();
         while (workerThread.isAlive()) {
@@ -102,14 +141,12 @@ public class NetIO implements Serializable {
         worker = null;
         workerThread = null;
     }
-
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         ois.defaultReadObject();
         worker = null;
         workerThread = null;
         counter = 0;
         executed = -1;
-        start();
     }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws IOException {

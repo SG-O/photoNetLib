@@ -18,8 +18,11 @@
 
 package de.sg_o.lib.photoNet.manager;
 
+import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.printer.Discover;
 import de.sg_o.lib.photoNet.printer.Printer;
+import de.sg_o.lib.photoNet.printer.cbd.CbdDiscover;
+import de.sg_o.lib.photoNet.printer.cbd.CbdPrinter;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -27,7 +30,7 @@ import java.util.TreeMap;
 public class Environment {
     private final Discover available;
     private final ArrayList<Printer> connected;
-    private int timeout;
+    private final int timeout;
 
     public Environment(String connected, int timeout) {
         this.connected = new ArrayList<>();
@@ -36,17 +39,44 @@ public class Environment {
             String[] printers = connected.split(";");
             if (printers.length > 0) {
                 for (String p : printers) {
-                    if (p.length() < 1) continue;
-                    try {
-                        Printer pr = new Printer(p, timeout);
-                        this.connected.add(pr);
-                    } catch (Exception ignored) {
+                    NetIO.DeviceType type = NetIO.DeviceType.CBD;
+                    if (p.contains("=")) {
+                        String[] split = p.split("=");
+                        if (split.length == 2) {
+                            try {
+                                int t = Integer.parseInt(split[0]);
+                                type = NetIO.DeviceType.getFromID(t);
+                                p = split[1];
+                            } catch (NumberFormatException ignore) {
+                            }
+                        }
                     }
+                    if (p.length() < 1) continue;
+                    addPrinter(p, timeout, type);
                 }
             }
         }
-        available = new Discover(timeout);
+        available = new CbdDiscover(timeout);
         available.update();
+    }
+
+    private Printer addPrinter(String ip, int timeout, NetIO.DeviceType type) {
+        try {
+            Printer pr;
+            switch (type) {
+                case CBD:
+                    pr = new CbdPrinter(ip, timeout);
+                    break;
+                case ACT:
+                    return null;
+                default:
+                    return null;
+            }
+            this.connected.add(pr);
+            return pr;
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     @SuppressWarnings("unused")
@@ -67,20 +97,14 @@ public class Environment {
     }
 
     @SuppressWarnings("unused")
-    public Printer connect(String ip) {
+    public Printer connect(String ip, NetIO.DeviceType type) {
         if (ip == null) return null;
         if (!available.isValid()) return null;
         TreeMap<String, String> discovered = available.getDiscovered();
         for (Printer p : connected) {
             if (p.getIp().equals(ip)) return p;
         }
-        try {
-            Printer p = new Printer(ip, timeout);
-            connected.add(p);
-            return p;
-        } catch (Exception ignored) {
-        }
-        return null;
+        return addPrinter(ip, timeout, type);
     }
 
     public ArrayList<Printer> getConnected() {
@@ -113,6 +137,8 @@ public class Environment {
             } else {
                 builder.append(";");
             }
+            builder.append(p.getDeviceType().getID());
+            builder.append("=");
             builder.append(p.getIp());
         }
         return builder.toString();

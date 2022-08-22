@@ -22,70 +22,21 @@ import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
-public class AsyncStatusUpdate implements Runnable {
-    private final NetIO io;
-    private final Status status;
-    private NetRegularCommand updateRequest;
-    private NetRegularCommand selectedFileRequest;
-    private int interval;
-    private long lastUpdate = 0;
-    private boolean statusUpdated = false;
-    private boolean fileUpdated = false;
-    private int errorCount = 10;
+public abstract class AsyncStatusUpdate implements Runnable {
+    protected final NetIO io;
+    protected final Status status;
+    protected NetRegularCommand updateRequest;
+    protected NetRegularCommand selectedFileRequest;
+    protected int interval;
+    protected long lastUpdate = 0;
+    protected boolean statusUpdated = false;
+    protected boolean fileUpdated = false;
+    protected int errorCount = 10;
 
     public AsyncStatusUpdate(int interval, Status status, NetIO io) {
         this.status = status;
         this.io = io;
         setUpdateInterval(interval);
-    }
-
-    public void run() {
-        while (interval > 1) {
-            if (updateRequest != null) {
-                if (!updateRequest.isExecuted()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ignored) {
-                    }
-                    continue;
-                }
-                if (!statusUpdated) {
-                    if (updateRequest.isError()) {
-                        errorCount++;
-                        if (errorCount > 10) {
-                            this.status.setDisconnected();
-                            errorCount = 10;
-                        }
-                    } else {
-                        errorCount = 0;
-                        this.status.update(updateRequest.getResponse());
-                        this.statusUpdated = true;
-                    }
-                }
-            }
-            if (selectedFileRequest != null) {
-                if (!selectedFileRequest.isExecuted()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ignored) {
-                    }
-                    continue;
-                }
-                if (!fileUpdated) {
-                    if (!selectedFileRequest.isError()) {
-                        this.status.updateOpenedFile(selectedFileRequest.getResponse());
-                        this.fileUpdated = true;
-                    }
-                }
-            }
-            if (lastUpdate + interval < System.currentTimeMillis()) {
-                updateRequest = new NetRegularCommand(io, "M4000");
-                selectedFileRequest = new NetRegularCommand(io, "M4006");
-                statusUpdated = false;
-                fileUpdated = false;
-                lastUpdate = System.currentTimeMillis();
-            }
-        }
     }
 
     public void setUpdateInterval(int interval) {

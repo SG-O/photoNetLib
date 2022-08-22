@@ -22,35 +22,23 @@ import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 
-import java.io.UnsupportedEncodingException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
-public class Printer {
-    private final NetIO io;
-    private final Status status = new Status();
-    private final AsyncStatusUpdate statUpdate;
-    private final Thread statUpdateThread;
+public abstract class Printer {
+    protected NetIO io;
+    protected Status status;
+    protected AsyncStatusUpdate statUpdate;
+    protected Thread statUpdateThread;
     private final String ip;
-    private final RootFolder rootFolder;
+    protected Folder rootFolder;
     private String name;
     private String ver;
     private String mac;
     private String id;
 
-    public Printer(String ip, int timeout) throws SocketException, UnknownHostException, UnsupportedEncodingException {
+    public Printer(String ip) {
         this.ip = ip;
-        io = new NetIO(ip, 3000, timeout);
-        AsyncPrinterInformation info = new AsyncPrinterInformation(this, io);
-        Thread infoThread = new Thread(info);
-        infoThread.start();
-        statUpdate = new AsyncStatusUpdate(5000, status, io);
-        statUpdateThread = new Thread(statUpdate);
-        statUpdateThread.start();
-        rootFolder = new RootFolder(io);
     }
 
-    void populateInformation(String name, String ver, String mac, String id) {
+    public void populateInformation(String name, String ver, String mac, String id) {
         this.name = name;
         this.ver = ver;
         this.mac = mac;
@@ -62,7 +50,7 @@ public class Printer {
     }
 
     @SuppressWarnings("unused")
-    public RootFolder getRootFolder() {
+    public Folder getRootFolder() {
         return rootFolder;
     }
 
@@ -104,8 +92,14 @@ public class Printer {
         return id;
     }
 
+    public NetIO.DeviceType getDeviceType() {
+        return io.getDeviceType();
+    }
+
     public void disconnect() {
+        if (statUpdate == null) return;
         statUpdate.stop();
+        if (statUpdateThread == null) return;
         while (statUpdateThread.isAlive()) {
             try {
                 Thread.sleep(10);

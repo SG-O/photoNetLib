@@ -18,122 +18,34 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.LinkedList;
 
-public class NetWorker implements Runnable {
-    private final DatagramSocket socket;
+public abstract class NetWorker implements Runnable {
+    protected final InetAddress address;
+    protected final int port;
 
-    private final InetAddress address;
-    private final int port;
+    protected final LinkedList<NetRequestResponse> toDo = new LinkedList<>();
+    protected final LinkedList<NetRequestResponse> done = new LinkedList<>();
 
-    private final LinkedList<NetRequestResponse> toDo = new LinkedList<>();
-    private final LinkedList<NetRequestResponse> done = new LinkedList<>();
-
-    private final byte[] buf = new byte[2048];
-
-    NetWorker(InetAddress address, int port, int timeout) throws SocketException {
+    public NetWorker(InetAddress address, int port) {
         this.address = address;
         this.port = port;
-        socket = new DatagramSocket();
-        socket.setSoTimeout(timeout);
     }
 
-    public void run() {
-        while (!socket.isClosed()) {
-            int jobs;
-            synchronized (this) {
-                jobs = toDo.size();
-            }
-            if (jobs < 1) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
-                }
-            } else {
-                NetRequestResponse active;
-                synchronized (this) {
-                    active = toDo.poll();
-                }
-                if (active == null) continue;
-                try {
-                    send(active);
-                } catch (IOException e) {
-                    active.setError(e.getMessage());
-                    active.setResponse(null);
-                }
-                synchronized (this) {
-                    done.add(active);
-                }
-            }
-        }
-    }
-
-    private void send(NetRequestResponse request) throws IOException {
-        DatagramPacket packet = new DatagramPacket(request.getRequest(), request.getRequest().length, address, port);
-        DatagramPacket response = new DatagramPacket(buf, 0, buf.length);
-        socket.send(packet);
-        byte[] multiPacket = null;
-        while (true) {
-            socket.receive(response);
-            if ((buf[0] == 0x6F) && (buf[1] == 0x6B)) {
-                byte[] data;
-                if (multiPacket == null) {
-                    data = new byte[response.getLength() - 2];
-                    System.arraycopy(buf, 2, data, 0, data.length);
-                } else {
-                    data = new byte[multiPacket.length + (response.getLength() - 2)];
-                    System.arraycopy(multiPacket, 0, data, 0, multiPacket.length);
-                    System.arraycopy(buf, 2, data, multiPacket.length, response.getLength() - 2);
-                }
-                request.setResponse(data);
-                return;
-            }
-            if ((buf[0] == 0x45) && (buf[1] == 0x72) && (buf[2] == 0x72) && (buf[3] == 0x6F) && (buf[4] == 0x72) && ((buf[5] == 0x3A) || (buf[5] == 0x2C))) {
-                byte[] data = new byte[response.getLength() - 6];
-                System.arraycopy(buf, 6, data, 0, data.length);
-                request.setError(new String(data));
-                request.setResponse(null);
-                return;
-            }
-            if (response.getLength() != 17 && multiPacket == null) {
-                if (!new String(buf).trim().startsWith("Begin file list")) {
-                    byte[] data = new byte[response.getLength()];
-                    System.arraycopy(buf, 0, data, 0, data.length);
-                    request.setResponse(data);
-                    return;
-                }
-            }
-            int destPos = 0;
-            if (multiPacket == null) {
-                multiPacket = new byte[response.getLength()];
-            } else {
-                byte[] tmp = multiPacket;
-                destPos = tmp.length;
-                multiPacket = new byte[tmp.length + response.getLength()];
-                System.arraycopy(tmp, 0, multiPacket, 0, tmp.length);
-            }
-            System.arraycopy(buf, 0, multiPacket, destPos, response.getLength());
-        }
-    }
-
-    void addJob(NetRequestResponse job) {
+    public void addJob(NetRequestResponse job) {
         synchronized (this) {
             toDo.add(job);
         }
     }
 
-    void addImportantJob(NetRequestResponse job) {
+    public void addImportantJob(NetRequestResponse job) {
         synchronized (this) {
             toDo.addFirst(job);
         }
     }
 
-    int doneSize() {
+    public int doneSize() {
         int size;
         synchronized (this) {
             size = done.size();
@@ -141,7 +53,7 @@ public class NetWorker implements Runnable {
         return size;
     }
 
-    NetRequestResponse pollDone() {
+    public NetRequestResponse pollDone() {
         NetRequestResponse job;
         synchronized (this) {
             job = done.poll();
@@ -149,7 +61,5 @@ public class NetWorker implements Runnable {
         return job;
     }
 
-    void stop() {
-        socket.close();
-    }
+    public abstract void stop();
 }

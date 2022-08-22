@@ -22,34 +22,14 @@ import de.sg_o.lib.photoNet.networkIO.NetIO;
 
 import java.util.TreeMap;
 
-public class FolderList {
-    private final TreeMap<String, FileListItem> items = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private final String path;
-    private final NetIO io;
+public abstract class FolderList {
+    protected final TreeMap<String, FileListItem> items = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    protected final String path;
+    protected final NetIO io;
 
-    public FolderList(String path, String response, NetIO io) {
+    protected FolderList(String path, NetIO io) {
         this.io = io;
         this.path = path;
-        if (response == null) return;
-        String[] lines = response.split("\\r?\\n");
-        FileListItem tmp;
-        if (path != null) {
-            if (!path.equals("")) {
-                tmp = new FileListItem(path, FileListItem.FOLDER_UP, 0, true, io);
-                items.put("-" + tmp.getName(), tmp);
-            }
-        }
-        for (int i = 1; i < (lines.length - 2); i++) {
-            try {
-                tmp = new FileListItem(path, lines[i], io);
-                if (tmp.isFolder()) {
-                    items.put("-" + tmp.getName(), tmp);
-                } else {
-                    items.put(tmp.getName(), tmp);
-                }
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     @SuppressWarnings("unused")
@@ -63,14 +43,7 @@ public class FolderList {
     }
 
     @SuppressWarnings("unused")
-    public FileListItem newFile(String fileName, long size) {
-        if (fileName == null) return null;
-        if (fileName.length() < 1) return null;
-
-        if (items.containsKey(fileName)) return null;
-
-        return new FileListItem(path, fileName, size, false, io);
-    }
+    public abstract FileListItem newFile(String fileName, long size);
 
     @Override
     public String toString() {

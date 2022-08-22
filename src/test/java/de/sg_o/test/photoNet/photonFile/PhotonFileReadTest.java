@@ -18,10 +18,12 @@
 
 package de.sg_o.test.photoNet.photonFile;
 
-import de.sg_o.lib.photoNet.photonFile.PhotonFile;
-import de.sg_o.lib.photoNet.photonFile.PhotonFileMeta;
-import de.sg_o.lib.photoNet.photonFile.PhotonFilePreview;
-import de.sg_o.lib.photoNet.photonFile.PhotonLayer;
+import de.sg_o.lib.photoNet.printFile.PrintFile;
+import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
+import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
+import de.sg_o.lib.photoNet.printFile.PrintLayer;
+import de.sg_o.lib.photoNet.printFile.photon.PhotonPrintFile;
+import de.sg_o.lib.photoNet.printFile.photon.PhotonPrintFileMeta;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -42,11 +44,11 @@ class PhotonFileReadTest {
         assertNotNull(testFileURL);
         File testFile = new File(testFileURL.toURI());
         assertNotNull(testFile);
-        PhotonFile photonFile = new PhotonFile(Files.newInputStream(testFile.toPath()), testFile.length());
+        PrintFile photonFile = new PhotonPrintFile(Files.newInputStream(testFile.toPath()), testFile.length());
         photonFile.parse();
-        PhotonFileMeta meta = photonFile.getMeta();
-        PhotonFilePreview preview = photonFile.getPreview();
-        PhotonFilePreview thumbnail = photonFile.getThumbnail();
+        PrintFileMeta meta = photonFile.getMeta();
+        PrintFilePreview preview = photonFile.getPreview();
+        PrintFilePreview thumbnail = photonFile.getThumbnail();
         assertNotNull(meta);
         assertNotNull(preview);
         assertNotNull(thumbnail);
@@ -88,7 +90,7 @@ class PhotonFileReadTest {
         int[] thumbnailRef = ((DataBufferInt) thumbnailFile.getRaster().getDataBuffer()).getData();
         assertArrayEquals(thumbnailRef, thumbnail.getImage());
 
-        PhotonLayer layer00 = photonFile.getLayers().get(0);
+        PrintLayer layer00 = photonFile.getLayers().get(0);
         assert (Math.abs(0.05f - layer00.getAbsolutePosition()) < 0.01);
         assert (Math.abs(60.0f - layer00.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer00.getOffTime()) < 0.01);
@@ -102,7 +104,7 @@ class PhotonFileReadTest {
         int[] layerAct00 = photonFile.getLayerImage(0);
         assertArrayEquals(layerRef00, layerAct00);
 
-        PhotonLayer layer40 = photonFile.getLayers().get(40);
+        PrintLayer layer40 = photonFile.getLayers().get(40);
         assert (Math.abs(2.05f - layer40.getAbsolutePosition()) < 0.01);
         assert (Math.abs(11.0f - layer40.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer40.getOffTime()) < 0.01);
@@ -119,7 +121,7 @@ class PhotonFileReadTest {
         assertArrayEquals(layerRef00, layerAct00);
 
         try {
-            new PhotonFileMeta(null);
+            new PhotonPrintFileMeta(null);
             assert (false);
         } catch (IOException ignore) {
             assert (true);
@@ -127,7 +129,7 @@ class PhotonFileReadTest {
 
         byte[] tooShort = new byte[32];
         try {
-            new PhotonFileMeta(tooShort);
+            new PhotonPrintFileMeta(tooShort);
             assert (false);
         } catch (IOException ignore) {
             assert (true);
@@ -135,7 +137,7 @@ class PhotonFileReadTest {
 
         byte[] invalidHeader = new byte[96];
         try {
-            new PhotonFileMeta(invalidHeader);
+            new PhotonPrintFileMeta(invalidHeader);
             assert (false);
         } catch (IOException ignore) {
             assert (true);
@@ -148,7 +150,7 @@ class PhotonFileReadTest {
         validHeader[3] = 0x19;
 
         try {
-            new PhotonFileMeta(validHeader);
+            new PhotonPrintFileMeta(validHeader);
             assert (true);
         } catch (IOException ignore) {
             assert (false);

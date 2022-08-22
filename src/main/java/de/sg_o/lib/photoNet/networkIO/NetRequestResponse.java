@@ -43,7 +43,7 @@ public class NetRequestResponse {
         return response;
     }
 
-    synchronized void setResponse(byte[] response) {
+    public synchronized void setResponse(byte[] response) {
         this.response = response;
     }
 
@@ -51,7 +51,7 @@ public class NetRequestResponse {
         return error;
     }
 
-    void setError(String error) {
+    public synchronized void setError(String error) {
         this.error = error;
     }
 

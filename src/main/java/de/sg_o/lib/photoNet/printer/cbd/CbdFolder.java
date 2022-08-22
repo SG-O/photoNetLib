@@ -16,41 +16,31 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printer;
+package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.netData.FolderList;
+import de.sg_o.lib.photoNet.netData.cbd.CbdFolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.printer.Folder;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 @SuppressWarnings("SerializableHasSerializationMethods")
-public abstract class Folder implements Serializable {
-    private static final long serialVersionUID = -8105907103389418019L;
-    protected final String path;
-    protected final NetIO io;
+public class CbdFolder extends Folder {
+    private static final long serialVersionUID = 8537190192225455645L;
 
-    protected transient NetRegularCommand updateFolder;
-
-    public Folder(String path, NetIO io) {
-        this.path = path;
-        this.io = io;
+    public CbdFolder(String path, NetIO io) throws UnsupportedEncodingException {
+        super(path, io);
     }
 
-    public abstract void update() throws UnsupportedEncodingException;
-
-    @SuppressWarnings("unused")
-    public String getPath() {
-        return path;
+    public void update() throws UnsupportedEncodingException {
+        updateFolder = new NetRegularCommand(io, "M20 '" + path + "'");
     }
 
-    @SuppressWarnings("unused")
-    public abstract FolderList getFolderList();
-
-    @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
-    public boolean isUpToDate() {
-        if (updateFolder == null) return false;
-        return updateFolder.isExecuted();
+    public FolderList getFolderList() {
+        if (updateFolder == null) return null;
+        if (!updateFolder.isExecuted()) return null;
+        return new CbdFolderList(path, updateFolder.getResponse(), io);
     }
 }

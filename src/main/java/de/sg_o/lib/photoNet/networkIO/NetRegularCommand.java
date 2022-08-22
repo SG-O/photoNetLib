@@ -47,6 +47,7 @@ public class NetRegularCommand {
         return response.getError() != null;
     }
 
+    @SuppressWarnings("unused")
     public String getError() {
         if (!isExecuted()) return null;
         if (!isError()) return null;

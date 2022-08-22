@@ -18,77 +18,20 @@
 
 package de.sg_o.lib.photoNet.netData;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public class Status {
-    private static final Pattern pattern = Pattern.compile("B:\\d+/\\d+ E1:\\d+/\\d+ E2:\\d+/\\d+ X:\\d+.\\d+ Y:\\d+.\\d+ Z:(?<z>\\d+.\\d+) F:\\d+/\\d+ D:(?<current>\\d+)/(?<total>\\d+)/\\d+ T:(?<time>\\d+)");
-    private static final Pattern filePattern = Pattern.compile("'(?<name>[^']+)'");
-    private State state = State.UNKNOWN;
-    private float progress = 0.0f;
-    private int time = 0;
-    private float z = 0.0f;
-    private boolean updated = false;
-    private String openedFile;
+public abstract class Status {
+    protected State state = State.UNKNOWN;
+    protected float progress = 0.0f;
+    protected int time = 0;
+    protected float z = 0.0f;
+    protected boolean updated = false;
+    protected String openedFile;
 
     public Status() {
     }
 
-    @SuppressWarnings("unused")
-    public Status(String response) {
-        update(response);
-    }
+    public abstract void update(String response);
 
-    public void update(String response) {
-        if (response == null) return;
-        State oldState = state;
-        float oldProgress = progress;
-        int oldTime = time;
-        float oldZ = z;
-        Matcher m = pattern.matcher(response);
-        while (m.find()) {
-            if (m.groupCount() == 4) {
-                this.z = Float.parseFloat(m.group("z"));
-                float total = Float.parseFloat(m.group("total"));
-                if (total > 0.0f) {
-                    this.progress = Float.parseFloat(m.group("current")) / total;
-                } else {
-                    this.progress = 0.0f;
-                }
-                this.time = Integer.parseInt(m.group("time"));
-                if (this.time > 0) {
-                    this.state = State.PRINTING;
-                } else if (this.state == State.PRINTING || this.state == State.FINISHED) {
-                    this.state = State.FINISHED;
-                } else {
-                    this.state = State.IDLE;
-                }
-            }
-        }
-        if (state != oldState) updated = true;
-        if (progress != oldProgress) updated = true;
-        if (time != oldTime) updated = true;
-        if (z != oldZ) updated = true;
-    }
-
-    public void updateOpenedFile(String response) {
-        if (response == null) {
-            openedFile = null;
-            return;
-        }
-        String oldFile = openedFile;
-        Matcher m = filePattern.matcher(response);
-        while (m.find()) {
-            if (m.groupCount() == 1) {
-                this.openedFile = m.group("name");
-            }
-        }
-        if (openedFile == null) {
-            if (oldFile != null) updated = true;
-        } else {
-            if (!this.openedFile.equals(oldFile)) updated = true;
-        }
-    }
+    public abstract void updateOpenedFile(String response);
 
     public void setDisconnected() {
         this.state = State.OFFLINE;
