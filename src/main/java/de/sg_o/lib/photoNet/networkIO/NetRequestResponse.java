@@ -25,10 +25,12 @@ public class NetRequestResponse {
     private final byte[] request;
     private byte[] response = null;
     private String error = null;
+    private final int expectedLength;
 
-    public NetRequestResponse(long ID, byte[] request) {
+    public NetRequestResponse(long ID, byte[] request, int expectedLength) {
         this.ID = ID;
         this.request = request;
+        this.expectedLength = expectedLength;
     }
 
     public synchronized long getID() {
@@ -53,6 +55,10 @@ public class NetRequestResponse {
 
     public synchronized void setError(String error) {
         this.error = error;
+    }
+
+    public int getExpectedLength() {
+        return Math.max(expectedLength, 0);
     }
 
     @Override

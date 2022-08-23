@@ -18,23 +18,8 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
-import java.nio.charset.StandardCharsets;
-
-public class NetRegularCommand {
-    private final NetRequestResponse response;
-
-    public NetRegularCommand(NetIO device, String command, boolean important) {
-        byte[] com = command.trim().getBytes(StandardCharsets.US_ASCII);
-        if (important) {
-            response = device.sendImmediately(com);
-        } else {
-            response = device.send(com);
-        }
-    }
-
-    public NetRegularCommand(NetIO device, String command) {
-        this(device, command, false);
-    }
+public abstract class NetRegularCommand {
+    protected NetRequestResponse response;
 
     public boolean isExecuted() {
         if (response == null) return true;
@@ -55,12 +40,5 @@ public class NetRegularCommand {
         return response.getError().trim();
     }
 
-    public String getResponse() {
-        if (!isExecuted()) return null;
-        if (isError()) return null;
-        if (response == null) return null;
-        byte[] data = response.getResponse();
-        if (data.length < 3) return "";
-        return new String(data).trim();
-    }
+    public abstract String getResponse();
 }

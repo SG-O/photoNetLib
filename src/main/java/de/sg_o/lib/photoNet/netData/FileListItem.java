@@ -38,6 +38,8 @@ public abstract class FileListItem {
     protected PrintFilePreview photonFilePreview;
     protected PrintFileMeta photonFileMeta;
 
+    protected boolean supportsDownload;
+
     public FileListItem(String baseDir, NetIO io) {
         if (baseDir == null) throw new InvalidParameterException("Null string");
         this.baseDir = baseDir;
@@ -98,6 +100,11 @@ public abstract class FileListItem {
 
     @SuppressWarnings("unused")
     public abstract void print();
+
+    @SuppressWarnings("unused")
+    public boolean supportsDownload() {
+        return supportsDownload;
+    }
 
     @Override
     public String toString() {

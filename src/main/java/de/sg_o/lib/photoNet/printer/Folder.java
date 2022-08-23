@@ -31,6 +31,8 @@ public abstract class Folder implements Serializable {
     protected final String path;
     protected final NetIO io;
 
+    protected boolean supportsUpload;
+
     protected transient NetRegularCommand updateFolder;
 
     public Folder(String path, NetIO io) {
@@ -52,5 +54,10 @@ public abstract class Folder implements Serializable {
     public boolean isUpToDate() {
         if (updateFolder == null) return false;
         return updateFolder.isExecuted();
+    }
+
+    @SuppressWarnings("unused")
+    public boolean supportsUpload() {
+        return supportsUpload;
     }
 }

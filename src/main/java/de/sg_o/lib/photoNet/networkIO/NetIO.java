@@ -63,17 +63,17 @@ public abstract class NetIO implements Serializable {
         return deviceType;
     }
 
-    public NetRequestResponse send(byte[] data) {
+    public NetRequestResponse send(byte[] data, int expectedLength) {
         if (!isAlive()) return null;
-        NetRequestResponse req = new NetRequestResponse(counter, data);
+        NetRequestResponse req = new NetRequestResponse(counter, data, expectedLength);
         counter++;
         worker.addJob(req);
         return req;
     }
 
-    public NetRequestResponse sendImmediately(byte[] data) {
+    public NetRequestResponse sendImmediately(byte[] data, int expectedLength) {
         if (!isAlive()) return null;
-        NetRequestResponse req = new NetRequestResponse(counter, data);
+        NetRequestResponse req = new NetRequestResponse(counter, data, expectedLength);
         counter++;
         worker.addImportantJob(req);
         return req;

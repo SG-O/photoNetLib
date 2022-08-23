@@ -28,4 +28,6 @@ public abstract class AsyncPrinterInformation implements Runnable {
         this.p = p;
         this.io = io;
     }
+
+    public abstract void update();
 }

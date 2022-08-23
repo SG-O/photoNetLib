@@ -24,6 +24,7 @@ import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
 import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
 import de.sg_o.lib.photoNet.printFile.photon.PhotonPrintFileMeta;
@@ -37,6 +38,7 @@ import java.security.InvalidParameterException;
 public class CbdFileListItem extends FileListItem {
     public CbdFileListItem(String baseDir, String name, long size, boolean folder, NetIO io) {
         super(baseDir, name, size, folder, io);
+        supportsDownload = true;
     }
 
     public CbdFileListItem(String baseDir, String info, NetIO io) {
@@ -54,6 +56,7 @@ public class CbdFileListItem extends FileListItem {
             this.size = Long.parseLong(split[split.length - 1]);
             this.name = info.substring(0, info.length() - split[split.length - 1].length()).trim();
         }
+        supportsDownload = true;
     }
 
     public Folder getFolder() {
@@ -130,7 +133,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public long openFile() {
-        NetRegularCommand statusRequest = new NetRegularCommand(io, "M4000");
+        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, "M4000");
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -142,7 +145,7 @@ public class CbdFileListItem extends FileListItem {
         stat.update(statusRequest.getResponse());
         if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return -1;
         closeFile();
-        NetRegularCommand fileRequest = new NetRegularCommand(io, "M6032 '" + name + "'");
+        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, "M6032 '" + name + "'");
         while (!fileRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -157,7 +160,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void closeFile() {
-        NetRegularCommand closePrevious = new NetRegularCommand(io, "M22");
+        NetRegularCommand closePrevious = new CbdNetRegularCommand(io, "M22");
         while (!closePrevious.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -175,7 +178,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void delete() {
-        NetRegularCommand delete = new NetRegularCommand(io, "M30 " + getFullPath());
+        NetRegularCommand delete = new CbdNetRegularCommand(io, "M30 " + getFullPath());
         while (!delete.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -185,6 +188,6 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void print() {
-        NetRegularCommand print = new NetRegularCommand(io, "M6030 ':" + getFullPath() + "'");
+        NetRegularCommand print = new CbdNetRegularCommand(io, "M6030 ':" + getFullPath() + "'");
     }
 }

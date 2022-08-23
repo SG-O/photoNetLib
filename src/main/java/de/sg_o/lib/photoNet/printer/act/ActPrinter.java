@@ -16,29 +16,28 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printer.cbd;
+package de.sg_o.lib.photoNet.printer.act;
 
-import de.sg_o.lib.photoNet.netData.cbd.CbdStatus;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetIO;
+import de.sg_o.lib.photoNet.netData.act.ActStatus;
+import de.sg_o.lib.photoNet.networkIO.act.ActNetIO;
 import de.sg_o.lib.photoNet.printer.Printer;
 
-import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class CbdPrinter extends Printer {
+public class ActPrinter extends Printer {
 
-    public CbdPrinter(String ip, int timeout) throws SocketException, UnsupportedEncodingException, UnknownHostException {
+    public ActPrinter(String ip, int timeout) throws SocketException, UnknownHostException {
         super(ip);
-        CbdNetIO io = new CbdNetIO(ip, 3000, timeout);
-        CbdStatus status = new CbdStatus();
+        ActNetIO io = new ActNetIO(ip, 6000, timeout);
+        ActStatus status = new ActStatus();
         this.io = io;
         this.status = status;
-        info = new CbdAsyncPrinterInformation(this, io);
+        info = new ActAsyncPrinterInformation(this, io);
         info.update();
-        this.statUpdate = new CbdAsyncStatusUpdate(5000, status, io);
+        this.statUpdate = new ActAsyncStatusUpdate(5000, status, io);
         this.statUpdateThread = new Thread(statUpdate);
         this.statUpdateThread.start();
-        this.rootFolder = new CbdRootFolder(io);
+        this.rootFolder = new ActRootFolder(io);
     }
 }

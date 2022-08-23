@@ -16,15 +16,17 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printer.cbd;
+package de.sg_o.lib.photoNet.printer.act;
 
-import de.sg_o.lib.photoNet.netData.cbd.CbdStatus;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetIO;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
+import de.sg_o.lib.photoNet.netData.act.ActStatus;
+import de.sg_o.lib.photoNet.networkIO.act.ActNetIO;
+import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncStatusUpdate;
 
-public class CbdAsyncStatusUpdate extends AsyncStatusUpdate {
-    public CbdAsyncStatusUpdate(int interval, CbdStatus status, CbdNetIO io) {
+import java.io.UnsupportedEncodingException;
+
+public class ActAsyncStatusUpdate extends AsyncStatusUpdate {
+    public ActAsyncStatusUpdate(int interval, ActStatus status, ActNetIO io) {
         super(interval, status, io);
     }
 
@@ -68,11 +70,13 @@ public class CbdAsyncStatusUpdate extends AsyncStatusUpdate {
                 }
             }
             if (lastUpdate + interval < System.currentTimeMillis()) {
-                updateRequest = new CbdNetRegularCommand(io, "M4000");
-                selectedFileRequest = new CbdNetRegularCommand(io, "M4006");
-                statusUpdated = false;
-                fileUpdated = false;
-                lastUpdate = System.currentTimeMillis();
+                try {
+                    updateRequest = new ActNetRegularCommand(io, "getstatus,");
+                    statusUpdated = false;
+                    fileUpdated = false;
+                    lastUpdate = System.currentTimeMillis();
+                } catch (UnsupportedEncodingException ignore) {
+                }
             }
         }
     }

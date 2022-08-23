@@ -18,14 +18,14 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
-public class NetSendBinary {
-    private final NetRequestResponse response;
+public abstract class NetSendBinary {
+    protected final NetRequestResponse response;
 
     public NetSendBinary(NetIO device, byte[] data, boolean important) {
         if (important) {
-            response = device.sendImmediately(data);
+            response = device.sendImmediately(data, 0);
         } else {
-            response = device.send(data);
+            response = device.send(data, 0);
         }
     }
 
@@ -51,12 +51,5 @@ public class NetSendBinary {
         return response.getError().trim();
     }
 
-    public String getResponse() {
-        if (!isExecuted()) return null;
-        if (isError()) return null;
-        if (response == null) return null;
-        byte[] data = response.getResponse();
-        if (data.length < 3) return "";
-        return new String(data).trim();
-    }
+    public abstract String getResponse();
 }

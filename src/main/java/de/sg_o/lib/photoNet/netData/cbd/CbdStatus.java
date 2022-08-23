@@ -62,7 +62,12 @@ public class CbdStatus extends Status {
                 }
             }
         }
-        if (state != oldState) updated = true;
+        if (state != oldState) {
+            if (oldState == State.OFFLINE) {
+                cameOnline = true;
+            }
+            updated = true;
+        }
         if (progress != oldProgress) updated = true;
         if (time != oldTime) updated = true;
         if (z != oldZ) updated = true;

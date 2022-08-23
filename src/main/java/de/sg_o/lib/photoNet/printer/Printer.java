@@ -21,11 +21,13 @@ package de.sg_o.lib.photoNet.printer;
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 
 public abstract class Printer {
     protected NetIO io;
     protected Status status;
     protected AsyncStatusUpdate statUpdate;
+    protected AsyncPrinterInformation info;
     protected Thread statUpdateThread;
     private final String ip;
     protected Folder rootFolder;
@@ -70,7 +72,7 @@ public abstract class Printer {
         if (name.length() < 1) return;
         if (name.length() > 15) return;
         this.name = name;
-        NetRegularCommand rename = new NetRegularCommand(io, "U100 '" + name + "'");
+        NetRegularCommand rename = new CbdNetRegularCommand(io, "U100 '" + name + "'");
     }
 
     public String getIp() {
@@ -107,6 +109,11 @@ public abstract class Printer {
             }
         }
         io.stop();
+    }
+
+    public void update() {
+        if (info == null) return;
+        info.update();
     }
 
     @Override

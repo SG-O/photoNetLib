@@ -21,6 +21,7 @@ package de.sg_o.lib.photoNet.manager;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.printer.Discover;
 import de.sg_o.lib.photoNet.printer.Printer;
+import de.sg_o.lib.photoNet.printer.act.ActPrinter;
 import de.sg_o.lib.photoNet.printer.cbd.CbdDiscover;
 import de.sg_o.lib.photoNet.printer.cbd.CbdPrinter;
 
@@ -68,7 +69,8 @@ public class Environment {
                     pr = new CbdPrinter(ip, timeout);
                     break;
                 case ACT:
-                    return null;
+                    pr = new ActPrinter(ip, timeout);
+                    break;
                 default:
                     return null;
             }

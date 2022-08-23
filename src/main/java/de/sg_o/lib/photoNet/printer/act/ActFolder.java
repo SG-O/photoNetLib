@@ -16,32 +16,32 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printer.cbd;
+package de.sg_o.lib.photoNet.printer.act;
 
 import de.sg_o.lib.photoNet.netData.FolderList;
-import de.sg_o.lib.photoNet.netData.cbd.CbdFolderList;
+import de.sg_o.lib.photoNet.netData.act.ActFolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Folder;
 
 import java.io.UnsupportedEncodingException;
 
 @SuppressWarnings("SerializableHasSerializationMethods")
-public class CbdFolder extends Folder {
-    private static final long serialVersionUID = 8537190192225455645L;
+public class ActFolder extends Folder {
+    private static final long serialVersionUID = -5410887332147328347L;
 
-    public CbdFolder(String path, NetIO io) throws UnsupportedEncodingException {
+    public ActFolder(String path, NetIO io) {
         super(path, io);
-        supportsUpload = true;
+        supportsUpload = false;
     }
 
     public void update() throws UnsupportedEncodingException {
-        updateFolder = new CbdNetRegularCommand(io, "M20 '" + path + "'");
+        updateFolder = new ActNetRegularCommand(io, "getfile,");
     }
 
     public FolderList getFolderList() {
         if (updateFolder == null) return null;
         if (!updateFolder.isExecuted()) return null;
-        return new CbdFolderList(path, updateFolder.getResponse(), io);
+        return new ActFolderList(path, updateFolder.getResponse(), io);
     }
 }

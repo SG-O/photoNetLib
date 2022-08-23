@@ -18,23 +18,8 @@
 
 package de.sg_o.lib.photoNet.networkIO;
 
-import java.nio.charset.StandardCharsets;
-
-public class NetRequestBinary {
-    private final NetRequestResponse response;
-
-    public NetRequestBinary(NetIO device, String command, boolean important) {
-        byte[] com = command.trim().getBytes(StandardCharsets.US_ASCII);
-        if (important) {
-            response = device.sendImmediately(com);
-        } else {
-            response = device.send(com);
-        }
-    }
-
-    public NetRequestBinary(NetIO device, String command) {
-        this(device, command, false);
-    }
+public abstract class NetRequestBinary {
+    protected NetRequestResponse response;
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isExecuted() {

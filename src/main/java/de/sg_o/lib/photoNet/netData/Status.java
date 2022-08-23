@@ -24,6 +24,7 @@ public abstract class Status {
     protected int time = 0;
     protected float z = 0.0f;
     protected boolean updated = false;
+    protected boolean cameOnline = false;
     protected String openedFile;
 
     public Status() {
@@ -45,6 +46,13 @@ public abstract class Status {
     public boolean isUpdated() {
         boolean old = updated;
         updated = false;
+        return old;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean cameOnline() {
+        boolean old = cameOnline;
+        cameOnline = false;
         return old;
     }
 
@@ -91,6 +99,7 @@ public abstract class Status {
         IDLE,
         PRINTING,
         FINISHED,
+        PAUSE,
         OFFLINE,
         UNKNOWN
     }

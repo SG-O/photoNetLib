@@ -24,6 +24,8 @@ import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.NetSendBinary;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetSendBinary;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -101,7 +103,7 @@ public class CbdDataUpload extends DataUpload {
 
     private boolean sendData(byte[] data, int offset) {
         CbdDataTransferBlock block = new CbdDataTransferBlock(data, offset);
-        NetSendBinary send = new NetSendBinary(io, block.generate());
+        NetSendBinary send = new CbdNetSendBinary(io, block.generate());
         while (!send.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -121,7 +123,7 @@ public class CbdDataUpload extends DataUpload {
     }
 
     private void endFile() throws UnsupportedEncodingException {
-        NetRegularCommand endFile = new NetRegularCommand(io, "M29");
+        NetRegularCommand endFile = new CbdNetRegularCommand(io, "M29");
         while (!endFile.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -132,7 +134,7 @@ public class CbdDataUpload extends DataUpload {
     }
 
     private void closeFile() {
-        NetRegularCommand closeFile = new NetRegularCommand(io, "M22");
+        NetRegularCommand closeFile = new CbdNetRegularCommand(io, "M22");
         while (!closeFile.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -145,7 +147,7 @@ public class CbdDataUpload extends DataUpload {
         if (file == null) return false;
         if (file.getName() == null) return false;
         if (file.getName().length() < 1) return false;
-        NetRegularCommand statusRequest = new NetRegularCommand(io, "M4000");
+        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, "M4000");
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -157,7 +159,7 @@ public class CbdDataUpload extends DataUpload {
         stat.update(statusRequest.getResponse());
         if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return false;
         closeFile();
-        NetRegularCommand fileRequest = new NetRegularCommand(io, "M28 " + file.getFullPath());
+        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, "M28 " + file.getFullPath());
         while (!fileRequest.isExecuted()) {
             try {
                 Thread.sleep(100);

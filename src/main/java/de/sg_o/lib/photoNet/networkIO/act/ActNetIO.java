@@ -16,7 +16,7 @@
  *
  */
 
-package de.sg_o.lib.photoNet.networkIO.cbd;
+package de.sg_o.lib.photoNet.networkIO.act;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 
@@ -26,21 +26,21 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class CbdNetIO extends NetIO {
+public class ActNetIO extends NetIO {
 
-    private static final long serialVersionUID = -5031935679559077835L;
+    private static final long serialVersionUID = -9071377806313137150L;
 
     @SuppressWarnings("unused")
-    public CbdNetIO(InetAddress address, int port, int timeout) throws SocketException {
-        super(address, port, timeout, DeviceType.CBD);
+    public ActNetIO(InetAddress address, int port, int timeout) throws SocketException {
+        super(address, port, timeout, DeviceType.ACT);
     }
 
-    public CbdNetIO(String address, int port, int timeout) throws UnknownHostException, SocketException {
-        super(InetAddress.getByName(address), port, timeout, DeviceType.CBD);
+    public ActNetIO(String address, int port, int timeout) throws UnknownHostException, SocketException {
+        super(InetAddress.getByName(address), port, timeout, DeviceType.ACT);
     }
 
     public void start() throws SocketException {
-        super.start(new CbdNetWorker(address, port, timeout));
+        super.start(new ActNetWorker(address, port, timeout));
     }
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {

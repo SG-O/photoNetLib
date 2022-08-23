@@ -20,6 +20,7 @@ package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncPrinterInformation;
 import de.sg_o.lib.photoNet.printer.Printer;
 
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 public class CbdAsyncPrinterInformation extends AsyncPrinterInformation {
     private static final Pattern pattern = Pattern.compile("MAC:(?<mac>[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+) IP:(?<ip>\\d+.\\d+.\\d+.\\d+) VER:(?<ver>V[0-9.]+) ID:(?<id>[0-9a-fA-F,]+) NAME:(?<name>\\S+)");
 
+    Thread infoThread;
+
     public CbdAsyncPrinterInformation(Printer p, NetIO io) {
         super(p, io);
     }
@@ -36,7 +39,7 @@ public class CbdAsyncPrinterInformation extends AsyncPrinterInformation {
 
     public void run() {
         NetRegularCommand statusRequest;
-        statusRequest = new NetRegularCommand(io, "M99999");
+        statusRequest = new CbdNetRegularCommand(io, "M99999");
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -55,5 +58,10 @@ public class CbdAsyncPrinterInformation extends AsyncPrinterInformation {
                 p.populateInformation(name, ver, mac, id);
             }
         }
+    }
+
+    public void update() {
+        infoThread = new Thread(this);
+        infoThread.start();
     }
 }
