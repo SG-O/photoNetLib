@@ -21,6 +21,7 @@ package de.sg_o.lib.photoNet.netData.act;
 import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.netData.FolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 
 public class ActFolderList extends FolderList {
     public ActFolderList(String path, String response, NetIO io) {
@@ -28,8 +29,8 @@ public class ActFolderList extends FolderList {
         if (response == null) return;
         String[] files = response.split(",");
         if (files.length < 2) return;
-        if (!files[0].equals("getfile")) return;
-        if (!files[files.length - 1].equals("end")) return;
+        if (!files[0].equals(ActCommands.GET_FILES)) return;
+        if (!files[files.length - 1].equals(ActCommands.Values.END.toString())) return;
         FileListItem tmp;
         for (int i = 1; i < (files.length - 1); i++) {
             try {

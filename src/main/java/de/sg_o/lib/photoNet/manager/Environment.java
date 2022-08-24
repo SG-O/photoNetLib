@@ -101,10 +101,11 @@ public class Environment {
     @SuppressWarnings("unused")
     public Printer connect(String ip, NetIO.DeviceType type) {
         if (ip == null) return null;
-        if (!available.isValid()) return null;
-        TreeMap<String, String> discovered = available.getDiscovered();
-        for (Printer p : connected) {
-            if (p.getIp().equals(ip)) return p;
+        if (available.isValid()) {
+            TreeMap<String, String> discovered = available.getDiscovered();
+            for (Printer p : connected) {
+                if (p.getIp().equals(ip)) return p;
+            }
         }
         return addPrinter(ip, timeout, type);
     }

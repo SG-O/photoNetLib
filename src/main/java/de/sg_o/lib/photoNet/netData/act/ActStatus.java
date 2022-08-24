@@ -19,6 +19,7 @@
 package de.sg_o.lib.photoNet.netData.act;
 
 import de.sg_o.lib.photoNet.netData.Status;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 
 public class ActStatus extends Status {
     public ActStatus() {
@@ -35,8 +36,8 @@ public class ActStatus extends Status {
         if (response == null) return;
         String[] split = response.split(",");
         if (split.length < 3) return;
-        if (!split[0].equals("getstatus")) return;
-        if (!split[split.length - 1].equals("end")) return;
+        if (!split[0].equals(ActCommands.GET_STATUS)) return;
+        if (!split[split.length - 1].equals(ActCommands.Values.END.toString())) return;
 
         State oldState = state;
         float oldProgress = progress;
@@ -44,7 +45,7 @@ public class ActStatus extends Status {
         float oldZ = z;
         String oldFile = openedFile;
 
-        if (split[1].equals("stop")) {
+        if (split[1].equals(ActCommands.Values.STOP.toString())) {
             if (this.state == State.PRINTING || this.state == State.FINISHED) {
                 this.state = State.FINISHED;
             } else {
@@ -52,15 +53,15 @@ public class ActStatus extends Status {
             }
             setNull();
         }
-        if (split[1].equals("finish")) {
+        if (split[1].equals(ActCommands.Values.FINISH.toString())) {
             this.state = State.FINISHED;
             setNull();
         }
-        if (split[1].equals("pause")) {
+        if (split[1].equals(ActCommands.Values.PAUSE.toString())) {
             this.state = State.PAUSE;
             parseDetailed(split);
         }
-        if (split[1].equals("print")) {
+        if (split[1].equals(ActCommands.Values.PRINT.toString())) {
             this.state = State.PRINTING;
             parseDetailed(split);
         }

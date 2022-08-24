@@ -24,6 +24,7 @@ import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.NetRequestBinary;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRequestBinary;
 import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
@@ -71,7 +72,7 @@ public class ActFileListItem extends FileListItem {
 
     public PrintFilePreview getPreview(long offset) {
         try {
-            NetRequestBinary print = new ActNetRequestBinary(io, "getPreview2," + ref + ",", 224 * 168 * 2);
+            NetRequestBinary print = new ActNetRequestBinary(io, ActCommands.getPreview2(ref), 224 * 168 * 2);
             while (!print.isExecuted()) {
                 Thread.sleep(100);
             }
@@ -104,7 +105,7 @@ public class ActFileListItem extends FileListItem {
     public void delete() {
         if (ref == null) return;
         try {
-            NetRegularCommand delete = new ActNetRegularCommand(io, "delfile,1," + ref + ",");
+            NetRegularCommand delete = new ActNetRegularCommand(io, ActCommands.deleteFile(new String[]{ref}));
             while (!delete.isExecuted()) {
                 try {
                     Thread.sleep(100);
@@ -118,7 +119,7 @@ public class ActFileListItem extends FileListItem {
     public void print() {
         if (ref == null) return;
         try {
-            new ActNetRegularCommand(io, "goprint," + ref + ",");
+            new ActNetRegularCommand(io, ActCommands.print(ref));
         } catch (UnsupportedEncodingException ignore) {
         }
     }

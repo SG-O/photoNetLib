@@ -20,8 +20,6 @@ package de.sg_o.lib.photoNet.printer;
 
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
-import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 
 public abstract class Printer {
     protected NetIO io;
@@ -31,10 +29,11 @@ public abstract class Printer {
     protected Thread statUpdateThread;
     private final String ip;
     protected Folder rootFolder;
-    private String name;
+    protected String name;
     private String ver;
     private String mac;
     private String id;
+    private boolean infoValid = false;
 
     public Printer(String ip) {
         this.ip = ip;
@@ -45,6 +44,7 @@ public abstract class Printer {
         this.ver = ver;
         this.mac = mac;
         this.id = id;
+        infoValid = name != null && ver != null && mac != null && id != null;
     }
 
     public Status getStatus() {
@@ -67,13 +67,7 @@ public abstract class Printer {
     }
 
     @SuppressWarnings("unused")
-    public void setName(String name) {
-        if (name == null) return;
-        if (name.length() < 1) return;
-        if (name.length() > 15) return;
-        this.name = name;
-        NetRegularCommand rename = new CbdNetRegularCommand(io, "U100 '" + name + "'");
-    }
+    public abstract void setName(String name);
 
     public String getIp() {
         return ip;
@@ -98,6 +92,10 @@ public abstract class Printer {
         return io.getDeviceType();
     }
 
+    public boolean isInfoValid() {
+        return infoValid;
+    }
+
     public void disconnect() {
         if (statUpdate == null) return;
         statUpdate.stop();
@@ -113,6 +111,7 @@ public abstract class Printer {
 
     public void update() {
         if (info == null) return;
+        infoValid = false;
         info.update();
     }
 

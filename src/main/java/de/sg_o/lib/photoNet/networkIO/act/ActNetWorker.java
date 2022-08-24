@@ -93,7 +93,7 @@ public class ActNetWorker extends NetWorker {
             if (clientSocket.isConnected()) {
                 out.write("111\n".getBytes("GBK"));
                 out.flush();
-                out.write("getmode,".getBytes("GBK"));
+                out.write(ActCommands.getMode().getBytes("GBK"));
                 out.flush();
                 byte[] tmp = new byte[16];
                 while (in.read(tmp) > 0) {

@@ -19,6 +19,7 @@
 package de.sg_o.lib.photoNet.printer.act;
 
 import de.sg_o.lib.photoNet.netData.act.ActStatus;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetIO;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncStatusUpdate;
@@ -71,7 +72,7 @@ public class ActAsyncStatusUpdate extends AsyncStatusUpdate {
             }
             if (lastUpdate + interval < System.currentTimeMillis()) {
                 try {
-                    updateRequest = new ActNetRegularCommand(io, "getstatus,");
+                    updateRequest = new ActNetRegularCommand(io, ActCommands.getStatus());
                     statusUpdated = false;
                     fileUpdated = false;
                     lastUpdate = System.currentTimeMillis();

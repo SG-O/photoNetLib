@@ -32,6 +32,8 @@ public class ApEmulator implements Runnable {
     private static final int PREVIEW_HEIGHT = 168;
 
     private final ServerSocket serverSocket;
+
+    String printerName = "SomeName";
     private final String[] fileList = {"Model1.pwmb", "Model2.pwmb", "JustSomeModel.photon"};
     Socket clientSocket;
     DataOutputStream out;
@@ -39,7 +41,7 @@ public class ApEmulator implements Runnable {
     //private final String[] fileList = {};
     private String printingFile = null;
 
-    ApEmulator(int port, int timeout) throws IOException {
+    public ApEmulator(int port, int timeout) throws IOException {
         serverSocket = new ServerSocket(port);
         serverSocket.setSoTimeout(timeout);
     }
@@ -47,9 +49,6 @@ public class ApEmulator implements Runnable {
     public static void main(String[] args) {
         try {
             ApEmulator emulator = new ApEmulator(6000, 10000);
-            //noinspection StatementWithEmptyBody
-            while (!emulator.acceptClient()) {
-            }
             Thread runner = new Thread(emulator);
             runner.start();
             while (runner.isAlive()) {
@@ -61,6 +60,7 @@ public class ApEmulator implements Runnable {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean acceptClient() {
         if (in != null || out != null) return false;
         try {
@@ -74,7 +74,9 @@ public class ApEmulator implements Runnable {
     }
 
     public void close() throws IOException {
-        clientSocket.close();
+        if (clientSocket != null) {
+            clientSocket.close();
+        }
         in = null;
         out = null;
     }
@@ -93,7 +95,7 @@ public class ApEmulator implements Runnable {
     }
 
     public boolean isConnected() {
-        return clientSocket.isConnected();
+        return !clientSocket.isClosed();
     }
 
     public String[] extractData(String[] raw, int offset, int length) {
@@ -200,6 +202,9 @@ public class ApEmulator implements Runnable {
         if (command.equals("getPreview2")) {
             return 1;
         }
+        if (command.equals("setname")) {
+            return 1;
+        }
         return 0;
     }
 
@@ -260,7 +265,15 @@ public class ApEmulator implements Runnable {
             sendData("goresume,OK,end"); //Unknown at the moment
         }
         if (command.equals("setname")) {
-            sendData("setname,OK,end"); //Unknown at the moment
+            if (parameter.length < 1) {
+                sendData("setname,ERROR1,end");
+            } else {
+                printerName = parameter[0].trim();
+                sendData("setname,OK,end");
+            }
+        }
+        if (command.equals("getname")) {
+            sendData("getname," + printerName + ",end"); //Unknown at the moment
         }
         if (command.equals("setpara")) {
             sendData("setpara,OK,end"); //Unknown at the moment
@@ -287,6 +300,9 @@ public class ApEmulator implements Runnable {
 
     @Override
     public void run() {
+        //noinspection StatementWithEmptyBody
+        while (!acceptClient()) {
+        }
         while (isConnected()) {
             try {
                 byte[] received = receive();

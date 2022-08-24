@@ -20,6 +20,7 @@ package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.netData.cbd.CbdStatus;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetIO;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Printer;
 
 import java.io.UnsupportedEncodingException;
@@ -27,7 +28,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class CbdPrinter extends Printer {
-
     public CbdPrinter(String ip, int timeout) throws SocketException, UnsupportedEncodingException, UnknownHostException {
         super(ip);
         CbdNetIO io = new CbdNetIO(ip, 3000, timeout);
@@ -40,5 +40,13 @@ public class CbdPrinter extends Printer {
         this.statUpdateThread = new Thread(statUpdate);
         this.statUpdateThread.start();
         this.rootFolder = new CbdRootFolder(io);
+    }
+
+    public void setName(String name) {
+        if (name == null) return;
+        if (name.length() < 1) return;
+        if (name.length() > 15) return;
+        this.name = name;
+        new CbdNetRegularCommand(io, "U100 '" + name + "'");
     }
 }

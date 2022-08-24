@@ -20,6 +20,7 @@ package de.sg_o.lib.photoNet.printer.act;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncPrinterInformation;
 import de.sg_o.lib.photoNet.printer.Printer;
@@ -34,26 +35,47 @@ public class ActAsyncPrinterInformation extends AsyncPrinterInformation {
     }
 
     public void run() {
-        NetRegularCommand statusRequest;
+        NetRegularCommand sysInfoRequest;
+        NetRegularCommand nameRequest;
         try {
-            statusRequest = new ActNetRegularCommand(io, "sysinfo,");
-            while (!statusRequest.isExecuted()) {
+            String mac = "";
+            String ver = null;
+            String name = null;
+            String id = null;
+            sysInfoRequest = new ActNetRegularCommand(io, ActCommands.systemInfo());
+            while (!sysInfoRequest.isExecuted()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ignore) {
                 }
             }
-            String response = statusRequest.getResponse();
-            if (response == null) return;
-            if (response.length() < 2) return;
-            String[] split = response.split(",");
-            if (split.length < 5) return;
-            if (!split[0].equals("sysinfo")) return;
-            if (!split[split.length - 1].equals("end")) return;
-            String mac = "";
-            String ver = split[2];
-            String name = split[1];
-            String id = split[3];
+            String response = sysInfoRequest.getResponse();
+            if (response != null) {
+                String[] split = response.split(",");
+                if (split.length > 4) {
+                    if (split[0].equals(ActCommands.SYSTEM_INFO) && split[split.length - 1].equals(ActCommands.Values.END.toString())) {
+                        ver = split[2];
+                        id = split[3];
+                    }
+                }
+            }
+            nameRequest = new ActNetRegularCommand(io, ActCommands.getName());
+            while (!nameRequest.isExecuted()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignore) {
+                }
+            }
+            response = nameRequest.getResponse();
+            if (response != null) {
+                String[] split = response.split(",");
+                if (split.length > 2) {
+                    if (split[0].equals(ActCommands.GET_NAME) && split[split.length - 1].equals(ActCommands.Values.END.toString())) {
+                        name = split[1];
+                    }
+                }
+            }
+
             p.populateInformation(name, ver, mac, id);
         } catch (UnsupportedEncodingException ignore) {
         }

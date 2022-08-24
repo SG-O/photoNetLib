@@ -21,6 +21,7 @@ package de.sg_o.lib.photoNet.printer.act;
 import de.sg_o.lib.photoNet.netData.FolderList;
 import de.sg_o.lib.photoNet.netData.act.ActFolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Folder;
 
@@ -36,7 +37,7 @@ public class ActFolder extends Folder {
     }
 
     public void update() throws UnsupportedEncodingException {
-        updateFolder = new ActNetRegularCommand(io, "getfile,");
+        updateFolder = new ActNetRegularCommand(io, ActCommands.getFiles());
     }
 
     public FolderList getFolderList() {

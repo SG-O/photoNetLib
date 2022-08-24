@@ -19,7 +19,9 @@
 package de.sg_o.lib.photoNet.printer.act;
 
 import de.sg_o.lib.photoNet.netData.act.ActStatus;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetIO;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Printer;
 
 import java.net.SocketException;
@@ -39,5 +41,13 @@ public class ActPrinter extends Printer {
         this.statUpdateThread = new Thread(statUpdate);
         this.statUpdateThread.start();
         this.rootFolder = new ActRootFolder(io);
+    }
+
+    public void setName(String name) {
+        if (name == null) return;
+        if (name.length() < 1) return;
+        if (name.length() > 15) return;
+        this.name = name;
+        new CbdNetRegularCommand(io, ActCommands.setName(name));
     }
 }
