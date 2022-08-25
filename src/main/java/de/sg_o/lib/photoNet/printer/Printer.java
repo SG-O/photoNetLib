@@ -92,6 +92,26 @@ public abstract class Printer {
         return io.getDeviceType();
     }
 
+    @SuppressWarnings("unused")
+    public abstract void stop();
+
+    @SuppressWarnings("unused")
+    public abstract void pause();
+
+    @SuppressWarnings("unused")
+    public abstract void resume();
+
+    @SuppressWarnings("unused")
+    public abstract void moveZ(float distance);
+
+    @SuppressWarnings("unused")
+    public abstract void homeZ();
+
+    @SuppressWarnings("unused")
+    public abstract void stopMove();
+
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isInfoValid() {
         return infoValid;
     }

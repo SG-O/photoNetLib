@@ -24,6 +24,7 @@ import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.NetSendBinary;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetSendBinary;
 
@@ -123,7 +124,7 @@ public class CbdDataUpload extends DataUpload {
     }
 
     private void endFile() throws UnsupportedEncodingException {
-        NetRegularCommand endFile = new CbdNetRegularCommand(io, "M29");
+        NetRegularCommand endFile = new CbdNetRegularCommand(io, CbdCommands.uploadFileStop());
         while (!endFile.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -134,7 +135,7 @@ public class CbdDataUpload extends DataUpload {
     }
 
     private void closeFile() {
-        NetRegularCommand closeFile = new CbdNetRegularCommand(io, "M22");
+        NetRegularCommand closeFile = new CbdNetRegularCommand(io, CbdCommands.closeFile());
         while (!closeFile.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -147,7 +148,7 @@ public class CbdDataUpload extends DataUpload {
         if (file == null) return false;
         if (file.getName() == null) return false;
         if (file.getName().length() < 1) return false;
-        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, "M4000");
+        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, CbdCommands.getStatus());
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -159,7 +160,7 @@ public class CbdDataUpload extends DataUpload {
         stat.update(statusRequest.getResponse());
         if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return false;
         closeFile();
-        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, "M28 " + file.getFullPath());
+        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, CbdCommands.uploadFile(file.getFullPath()));
         while (!fileRequest.isExecuted()) {
             try {
                 Thread.sleep(100);

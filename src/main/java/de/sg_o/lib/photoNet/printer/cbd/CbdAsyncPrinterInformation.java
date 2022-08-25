@@ -20,6 +20,7 @@ package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncPrinterInformation;
 import de.sg_o.lib.photoNet.printer.Printer;
@@ -39,7 +40,7 @@ public class CbdAsyncPrinterInformation extends AsyncPrinterInformation {
 
     public void run() {
         NetRegularCommand statusRequest;
-        statusRequest = new CbdNetRegularCommand(io, "M99999");
+        statusRequest = new CbdNetRegularCommand(io, CbdCommands.systemInfo());
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);

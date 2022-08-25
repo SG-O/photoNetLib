@@ -19,6 +19,7 @@
 package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.netData.cbd.CbdStatus;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetIO;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.AsyncStatusUpdate;
@@ -68,8 +69,8 @@ public class CbdAsyncStatusUpdate extends AsyncStatusUpdate {
                 }
             }
             if (lastUpdate + interval < System.currentTimeMillis()) {
-                updateRequest = new CbdNetRegularCommand(io, "M4000");
-                selectedFileRequest = new CbdNetRegularCommand(io, "M4006");
+                updateRequest = new CbdNetRegularCommand(io, CbdCommands.getStatus());
+                selectedFileRequest = new CbdNetRegularCommand(io, CbdCommands.getSelectedFile());
                 statusUpdated = false;
                 fileUpdated = false;
                 lastUpdate = System.currentTimeMillis();

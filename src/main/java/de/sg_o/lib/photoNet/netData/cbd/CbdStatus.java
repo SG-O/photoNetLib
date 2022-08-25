@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CbdStatus extends Status {
-    private static final Pattern pattern = Pattern.compile("B:\\d+/\\d+ E1:\\d+/\\d+ E2:\\d+/\\d+ X:\\d+.\\d+ Y:\\d+.\\d+ Z:(?<z>\\d+.\\d+) F:\\d+/\\d+ D:(?<current>\\d+)/(?<total>\\d+)/\\d+ T:(?<time>\\d+)");
+    private static final Pattern pattern = Pattern.compile("B:\\d+/\\d+ E1:\\d+/\\d+ E2:\\d+/\\d+ X:-?\\d+.\\d+ Y:-?\\d+.\\d+ Z:(?<z>-?\\d+.\\d+) F:\\d+/\\d+ D:(?<current>\\d+)/(?<total>\\d+)/\\d+ T:(?<time>\\d+)");
     private static final Pattern filePattern = Pattern.compile("'(?<name>[^']+)'");
 
     public CbdStatus() {

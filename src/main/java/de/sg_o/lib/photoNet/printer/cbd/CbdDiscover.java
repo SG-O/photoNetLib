@@ -18,6 +18,7 @@
 
 package de.sg_o.lib.photoNet.printer.cbd;
 
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.printer.Discover;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class CbdDiscover extends Discover {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
                 socket.setSoTimeout((timeout / 10) / broadcasts.size());
-                String discover = "M99999";
+                String discover = CbdCommands.systemInfo();
                 byte[] buffer = discover.getBytes();
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 3000);
                 try {

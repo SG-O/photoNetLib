@@ -21,9 +21,10 @@ package de.sg_o.lib.photoNet.printer.act;
 import de.sg_o.lib.photoNet.netData.act.ActStatus;
 import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetIO;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Printer;
 
+import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
@@ -48,6 +49,57 @@ public class ActPrinter extends Printer {
         if (name.length() < 1) return;
         if (name.length() > 15) return;
         this.name = name;
-        new CbdNetRegularCommand(io, ActCommands.setName(name));
+        try {
+            new ActNetRegularCommand(io, ActCommands.setName(name));
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void stop() {
+        try {
+            new ActNetRegularCommand(io, ActCommands.stop());
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void pause() {
+        try {
+            new ActNetRegularCommand(io, ActCommands.pause());
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void resume() {
+        try {
+            new ActNetRegularCommand(io, ActCommands.resume());
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void moveZ(float distance) {
+        try {
+            new ActNetRegularCommand(io, ActCommands.zMove(distance));
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void homeZ() {
+        try {
+            new ActNetRegularCommand(io, ActCommands.zHome());
+        } catch (UnsupportedEncodingException ignore) {
+        }
+    }
+
+    @Override
+    public void stopMove() {
+        try {
+            new ActNetRegularCommand(io, ActCommands.zStop());
+        } catch (UnsupportedEncodingException ignore) {
+        }
     }
 }

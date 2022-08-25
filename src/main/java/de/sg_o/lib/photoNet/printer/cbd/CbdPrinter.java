@@ -19,6 +19,7 @@
 package de.sg_o.lib.photoNet.printer.cbd;
 
 import de.sg_o.lib.photoNet.netData.cbd.CbdStatus;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetIO;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Printer;
@@ -47,6 +48,37 @@ public class CbdPrinter extends Printer {
         if (name.length() < 1) return;
         if (name.length() > 15) return;
         this.name = name;
-        new CbdNetRegularCommand(io, "U100 '" + name + "'");
+        new CbdNetRegularCommand(io, CbdCommands.setName(name));
+    }
+
+    @Override
+    public void stop() {
+        new CbdNetRegularCommand(io, CbdCommands.stop());
+    }
+
+    @Override
+    public void pause() {
+        new CbdNetRegularCommand(io, CbdCommands.pause());
+    }
+
+    @Override
+    public void resume() {
+        new CbdNetRegularCommand(io, CbdCommands.resume());
+    }
+
+    @Override
+    public void moveZ(float distance) {
+        new CbdNetRegularCommand(io, CbdCommands.zRelative());
+        new CbdNetRegularCommand(io, CbdCommands.zMove(distance, 600.0f));
+    }
+
+    @Override
+    public void homeZ() {
+        new CbdNetRegularCommand(io, CbdCommands.zHome());
+    }
+
+    @Override
+    public void stopMove() {
+        new CbdNetRegularCommand(io, CbdCommands.zStop());
     }
 }

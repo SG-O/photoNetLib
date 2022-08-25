@@ -22,6 +22,7 @@ import de.sg_o.lib.photoNet.netData.DataDownload;
 import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRequestBinary;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRequestBinary;
 
 import java.io.OutputStream;
@@ -122,7 +123,7 @@ public class CbdDataDownload extends DataDownload {
     }
 
     private CbdDataTransferBlock readFromOffset(long offset) {
-        NetRequestBinary data = new CbdNetRequestBinary(io, "M3001 I" + offset, 0);
+        NetRequestBinary data = new CbdNetRequestBinary(io, CbdCommands.readFileOffset(offset), 0);
         while (!data.isExecuted()) {
             try {
                 Thread.sleep(100);

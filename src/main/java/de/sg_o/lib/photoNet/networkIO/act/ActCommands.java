@@ -222,12 +222,11 @@ public class ActCommands {
         return simpleCommand(GET_FIRMWARE);
     }
 
-
-    public static String simpleCommand(String command) {
+    private static String simpleCommand(String command) {
         return command + ",";
     }
 
-    public static String singleParameterCommand(String command, String parameter) {
+    private static String singleParameterCommand(String command, String parameter) {
         return command + "," + parameter + ",";
     }
 

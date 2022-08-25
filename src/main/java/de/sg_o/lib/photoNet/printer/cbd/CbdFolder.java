@@ -21,6 +21,7 @@ package de.sg_o.lib.photoNet.printer.cbd;
 import de.sg_o.lib.photoNet.netData.FolderList;
 import de.sg_o.lib.photoNet.netData.cbd.CbdFolderList;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printer.Folder;
 
@@ -36,7 +37,7 @@ public class CbdFolder extends Folder {
     }
 
     public void update() throws UnsupportedEncodingException {
-        updateFolder = new CbdNetRegularCommand(io, "M20 '" + path + "'");
+        updateFolder = new CbdNetRegularCommand(io, CbdCommands.getFiles(path));
     }
 
     public FolderList getFolderList() {

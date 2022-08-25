@@ -24,6 +24,7 @@ import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.NetRegularCommand;
+import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdNetRegularCommand;
 import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
 import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
@@ -133,7 +134,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public long openFile() {
-        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, "M4000");
+        NetRegularCommand statusRequest = new CbdNetRegularCommand(io, CbdCommands.getStatus());
         while (!statusRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -145,7 +146,7 @@ public class CbdFileListItem extends FileListItem {
         stat.update(statusRequest.getResponse());
         if (stat.getState() != Status.State.IDLE && stat.getState() != Status.State.FINISHED) return -1;
         closeFile();
-        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, "M6032 '" + name + "'");
+        NetRegularCommand fileRequest = new CbdNetRegularCommand(io, CbdCommands.selectFile(name));
         while (!fileRequest.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -160,7 +161,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void closeFile() {
-        NetRegularCommand closePrevious = new CbdNetRegularCommand(io, "M22");
+        NetRegularCommand closePrevious = new CbdNetRegularCommand(io, CbdCommands.closeFile());
         while (!closePrevious.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -178,7 +179,7 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void delete() {
-        NetRegularCommand delete = new CbdNetRegularCommand(io, "M30 " + getFullPath());
+        NetRegularCommand delete = new CbdNetRegularCommand(io, CbdCommands.deleteFile(getFullPath()));
         while (!delete.isExecuted()) {
             try {
                 Thread.sleep(100);
@@ -188,6 +189,6 @@ public class CbdFileListItem extends FileListItem {
     }
 
     public void print() {
-        NetRegularCommand print = new CbdNetRegularCommand(io, "M6030 ':" + getFullPath() + "'");
+        NetRegularCommand print = new CbdNetRegularCommand(io, CbdCommands.print(getFullPath()));
     }
 }
