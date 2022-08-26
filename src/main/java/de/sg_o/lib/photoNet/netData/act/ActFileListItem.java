@@ -29,8 +29,8 @@ import de.sg_o.lib.photoNet.networkIO.act.ActNetRegularCommand;
 import de.sg_o.lib.photoNet.networkIO.act.ActNetRequestBinary;
 import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
 import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
-import de.sg_o.lib.photoNet.printFile.pwmb.PwmbPrintFileMeta;
-import de.sg_o.lib.photoNet.printFile.pwmb.PwmbPrintFilePreview;
+import de.sg_o.lib.photoNet.printFile.pw.PwPrintFileMeta;
+import de.sg_o.lib.photoNet.printFile.pw.PwPrintFilePreview;
 import de.sg_o.lib.photoNet.printer.Folder;
 
 import java.io.InputStream;
@@ -67,7 +67,7 @@ public class ActFileListItem extends FileListItem {
     }
 
     public PrintFileMeta getMeta() {
-        return new PwmbPrintFileMeta();
+        return new PwPrintFileMeta();
     }
 
     public PrintFilePreview getPreview(long offset) {
@@ -79,7 +79,7 @@ public class ActFileListItem extends FileListItem {
             if (print.isError()) return null;
             byte[] data = print.getResponse();
             if (data == null) return null;
-            PwmbPrintFilePreview preview = new PwmbPrintFilePreview();
+            PwPrintFilePreview preview = new PwPrintFilePreview();
             preview.addData(data);
             return preview;
         } catch (UnsupportedEncodingException | InterruptedException ignore) {

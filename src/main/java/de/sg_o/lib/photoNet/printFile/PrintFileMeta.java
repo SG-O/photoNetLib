@@ -120,13 +120,7 @@ public abstract class PrintFileMeta {
     }
 
     @SuppressWarnings("unused")
-    public long[] getLayers() {
-        long[] allLayers = new long[nrLayers];
-        for (int i = 0; i < allLayers.length; i++) {
-            allLayers[i] = layerHeadersOffset + (i * 36L);
-        }
-        return allLayers;
-    }
+    public abstract long[] getLayers();
 
     public int getAntiAliasing() {
         return antiAliasing;

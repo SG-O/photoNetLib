@@ -22,8 +22,8 @@ import de.sg_o.lib.photoNet.printFile.PrintLayer;
 
 import java.io.IOException;
 
-import static de.sg_o.lib.photoNet.printFile.photon.FileRead.readFloat;
-import static de.sg_o.lib.photoNet.printFile.photon.FileRead.readInt;
+import static de.sg_o.lib.photoNet.printFile.FileRead.readFloat;
+import static de.sg_o.lib.photoNet.printFile.FileRead.readInt;
 
 public class PhotonPrintLayer extends PrintLayer {
     public static final long HEADER_SPACING = 36;

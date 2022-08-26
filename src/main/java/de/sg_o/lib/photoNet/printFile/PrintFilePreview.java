@@ -44,8 +44,8 @@ public abstract class PrintFilePreview {
     }
 
     public void addData(byte[] model) {
-        if (model.length < imgData.length) return;
-        System.arraycopy(model, 0, imgData, 0, imgData.length);
+        if (model.length > imgData.length) return;
+        System.arraycopy(model, 0, imgData, 0, model.length);
     }
 
     @SuppressWarnings("unused")

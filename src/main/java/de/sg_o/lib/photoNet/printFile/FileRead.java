@@ -16,10 +16,10 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printFile.photon;
+package de.sg_o.lib.photoNet.printFile;
 
-class FileRead {
-    static int readInt(byte[] file, int offset) {
+public class FileRead {
+    public static int readInt(byte[] file, int offset) {
         int ch1 = file[offset] & 0xFF;
         int ch2 = file[offset + 1] & 0xFF;
         int ch3 = file[offset + 2] & 0xFF;
@@ -27,16 +27,16 @@ class FileRead {
         return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + ch1);
     }
 
-    static long readLong(byte[] file, int offset) {
+    public static long readLong(byte[] file, int offset) {
         return ((long) (readInt(file, offset)) << 32) + (readInt(file, offset + 1) & 0xFFFFFFFFL);
     }
 
-    static float readFloat(byte[] file, int offset) {
+    public static float readFloat(byte[] file, int offset) {
         return Float.intBitsToFloat(readInt(file, offset));
     }
 
     @SuppressWarnings("unused")
-    static double readDouble(byte[] file, int offset) {
+    public static double readDouble(byte[] file, int offset) {
         return Double.longBitsToDouble(readLong(file, offset));
     }
 }

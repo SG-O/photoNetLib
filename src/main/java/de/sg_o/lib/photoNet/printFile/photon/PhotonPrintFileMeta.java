@@ -18,6 +18,7 @@
 
 package de.sg_o.lib.photoNet.printFile.photon;
 
+import de.sg_o.lib.photoNet.printFile.FileRead;
 import de.sg_o.lib.photoNet.printFile.PrintFileMeta;
 
 import java.io.IOException;
@@ -47,5 +48,14 @@ public class PhotonPrintFileMeta extends PrintFileMeta {
         previewThumbnailHeaderOffset = ((long) FileRead.readInt(model, 72)) & 0xFFFFFFFFL;
         lightCuringType = FileRead.readInt(model, 80);
         antiAliasing = FileRead.readInt(model, 92);
+    }
+
+    public long[] getLayers() {
+        if (nrLayers < 1) return null;
+        long[] allLayers = new long[nrLayers];
+        for (int i = 0; i < allLayers.length; i++) {
+            allLayers[i] = layerHeadersOffset + (i * PhotonPrintLayer.HEADER_SPACING);
+        }
+        return allLayers;
     }
 }

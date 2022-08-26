@@ -22,7 +22,7 @@ import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
 
 import java.io.IOException;
 
-import static de.sg_o.lib.photoNet.printFile.photon.FileRead.readInt;
+import static de.sg_o.lib.photoNet.printFile.FileRead.readInt;
 
 public class PhotonPrintFilePreview extends PrintFilePreview {
     public PhotonPrintFilePreview(byte[] model) throws IOException {

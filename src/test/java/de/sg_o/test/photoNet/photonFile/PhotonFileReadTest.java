@@ -74,7 +74,7 @@ class PhotonFileReadTest {
 
         assertEquals(toStringExpected, photonFile.toString());
 
-        URL refFile = this.getClass().getResource("/preview.png");
+        URL refFile = this.getClass().getResource("/photonPreview.png");
         assertNotNull(refFile);
         BufferedImage tmp = ImageIO.read(refFile);
         BufferedImage previewFile = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -82,7 +82,7 @@ class PhotonFileReadTest {
         int[] previewRef = ((DataBufferInt) previewFile.getRaster().getDataBuffer()).getData();
         assertArrayEquals(previewRef, preview.getImage());
 
-        refFile = this.getClass().getResource("/thumbnail.png");
+        refFile = this.getClass().getResource("/photonThumbnail.png");
         assertNotNull(refFile);
         tmp = ImageIO.read(refFile);
         BufferedImage thumbnailFile = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -95,7 +95,7 @@ class PhotonFileReadTest {
         assert (Math.abs(60.0f - layer00.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer00.getOffTime()) < 0.01);
 
-        refFile = this.getClass().getResource("/layer00.png");
+        refFile = this.getClass().getResource("/photonLayer00.png");
         assertNotNull(refFile);
         tmp = ImageIO.read(refFile);
         BufferedImage layerFile00 = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -109,7 +109,7 @@ class PhotonFileReadTest {
         assert (Math.abs(11.0f - layer40.getExposureTime()) < 0.01);
         assert (Math.abs(4.0f - layer40.getOffTime()) < 0.01);
 
-        refFile = this.getClass().getResource("/layer40.png");
+        refFile = this.getClass().getResource("/photonLayer40.png");
         assertNotNull(refFile);
         tmp = ImageIO.read(refFile);
         BufferedImage layerFile40 = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB);
