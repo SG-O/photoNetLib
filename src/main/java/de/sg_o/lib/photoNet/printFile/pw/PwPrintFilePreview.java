@@ -34,8 +34,10 @@ public class PwPrintFilePreview extends PrintFilePreview {
     public PwPrintFilePreview(PwPrintFile input, long offset, long layerHeader) throws IOException {
         if (!new String(input.readData(PwPrintFile.SECTION_HEADER_LENGTH), StandardCharsets.US_ASCII)
                 .trim().equals("PREVIEW")) throw new IOException("Invalid Header");
+        //noinspection unused
         int previewLength = input.readInt();
         imgWidth = input.readInt();
+        //noinspection unused
         int resolution = input.readInt();
         imgHeight = input.readInt();
         imgDataLength = imgWidth * imgHeight * 2;

@@ -39,7 +39,7 @@ public class PwPrintFile extends PrintFile {
             meta = new PwPrintFileMeta(this);
             readPreview();
             parseLayers();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
     }
 
@@ -49,6 +49,7 @@ public class PwPrintFile extends PrintFile {
         seek(meta.getLayerHeadersOffset());
         if (!new String(readData(PwPrintFile.SECTION_HEADER_LENGTH), StandardCharsets.US_ASCII)
                 .trim().equals("LAYERDEF")) throw new IOException("Invalid Header");
+        //noinspection unused
         int layerDefLength = readInt();
         meta.setNrLayers(readInt());
 

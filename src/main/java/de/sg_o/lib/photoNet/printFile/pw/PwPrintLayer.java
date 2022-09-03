@@ -64,7 +64,7 @@ public class PwPrintLayer extends PrintLayer {
         int[] img = new int[max];
 
         int count = 0;
-        int color = 0;
+        int color;
         for (int i = 0; i < data.length; i++) {
             int code = (data[i] >> 4) & 0xF;
             int repeat = data[i] & 0xF;

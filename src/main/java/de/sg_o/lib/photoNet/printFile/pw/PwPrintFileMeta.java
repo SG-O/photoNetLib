@@ -41,17 +41,20 @@ public class PwPrintFileMeta extends PrintFileMeta {
         if (!new String(input.readData(PwPrintFile.SECTION_HEADER_LENGTH), StandardCharsets.US_ASCII)
                 .trim().equals("ANYCUBIC")) throw new IOException("Invalid Header");
         super.fileVersion = input.readInt();
+        //noinspection unused
         int areaNumber = input.readInt();
         long headerOffset = input.readInt() & 0xFFFFFFFFL;
         input.readInt();
         super.previewHeaderOffset = input.readInt() & 0xFFFFFFFFL;
         input.readInt();
         super.layerHeadersOffset = input.readInt() & 0xFFFFFFFFL;
+        //noinspection unused
         long extraOffset = input.readInt() & 0xFFFFFFFFL;
 
         input.seek(headerOffset);
         if (!new String(input.readData(PwPrintFile.SECTION_HEADER_LENGTH), StandardCharsets.US_ASCII)
                 .trim().equals("HEADER")) throw new IOException("Invalid Header");
+        //noinspection unused
         int headerLength = input.readInt();
         pixelSize = input.readFloat();
         super.layerThickness = input.readFloat();
@@ -94,33 +97,31 @@ public class PwPrintFileMeta extends PrintFileMeta {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PwPrintFileMeta{");
-        sb.append("fileVersion=").append(fileVersion);
-        sb.append(", plateX=").append(plateX);
-        sb.append(", plateY=").append(plateY);
-        sb.append(", plateZ=").append(plateZ);
-        sb.append(", layerThickness=").append(layerThickness);
-        sb.append(", normalExposureTime=").append(normalExposureTime);
-        sb.append(", bottomExposureTime=").append(bottomExposureTime);
-        sb.append(", offTime=").append(offTime);
-        sb.append(", bottomLayers=").append(bottomLayers);
-        sb.append(", screenHeight=").append(screenHeight);
-        sb.append(", screenWidth=").append(screenWidth);
-        sb.append(", lightCuringType=").append(lightCuringType);
-        sb.append(", nrLayers=").append(nrLayers);
-        sb.append(", layerHeadersOffset=").append(layerHeadersOffset);
-        sb.append(", previewHeaderOffset=").append(previewHeaderOffset);
-        sb.append(", previewThumbnailHeaderOffset=").append(previewThumbnailHeaderOffset);
-        sb.append(", antiAliasing=").append(antiAliasing);
-        sb.append(", pixelSize=").append(pixelSize);
-        sb.append(", liftHeight=").append(liftHeight);
-        sb.append(", liftSpeed=").append(liftSpeed);
-        sb.append(", retractSpeed=").append(retractSpeed);
-        sb.append(", requiredMaterial=").append(requiredMaterial);
-        sb.append(", weight=").append(weight);
-        sb.append(", price=").append(price);
-        sb.append(", resinType=").append(resinType);
-        sb.append('}');
-        return sb.toString();
+        return "PwPrintFileMeta{" + "fileVersion=" + fileVersion +
+                ", plateX=" + plateX +
+                ", plateY=" + plateY +
+                ", plateZ=" + plateZ +
+                ", layerThickness=" + layerThickness +
+                ", normalExposureTime=" + normalExposureTime +
+                ", bottomExposureTime=" + bottomExposureTime +
+                ", offTime=" + offTime +
+                ", bottomLayers=" + bottomLayers +
+                ", screenHeight=" + screenHeight +
+                ", screenWidth=" + screenWidth +
+                ", lightCuringType=" + lightCuringType +
+                ", nrLayers=" + nrLayers +
+                ", layerHeadersOffset=" + layerHeadersOffset +
+                ", previewHeaderOffset=" + previewHeaderOffset +
+                ", previewThumbnailHeaderOffset=" + previewThumbnailHeaderOffset +
+                ", antiAliasing=" + antiAliasing +
+                ", pixelSize=" + pixelSize +
+                ", liftHeight=" + liftHeight +
+                ", liftSpeed=" + liftSpeed +
+                ", retractSpeed=" + retractSpeed +
+                ", requiredMaterial=" + requiredMaterial +
+                ", weight=" + weight +
+                ", price=" + price +
+                ", resinType=" + resinType +
+                '}';
     }
 }
