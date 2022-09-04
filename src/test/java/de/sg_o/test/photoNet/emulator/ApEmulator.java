@@ -40,6 +40,7 @@ public class ApEmulator implements Runnable {
     DataInputStream in;
     //private final String[] fileList = {};
     private String printingFile = null;
+    private boolean paused = false;
 
     public ApEmulator(int port, int timeout) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -220,9 +221,15 @@ public class ApEmulator implements Runnable {
             if (printingFile == null) {
                 sendData("getstatus,stop,end");
             } else {
-                sendData("getstatus,print," +
-                        getFileFromAlias(printingFile) +
-                        ",2338,88,2062,51744,6844,~178mL,UV,39.38,0.05,0,end");
+                if (paused) {
+                    sendData("getstatus,pause," +
+                            getFileFromAlias(printingFile) +
+                            ",2338,88,2062,51744,6844,~178mL,UV,39.38,0.05,0,end");
+                } else {
+                    sendData("getstatus,print," +
+                            getFileFromAlias(printingFile) +
+                            ",2338,88,2062,51744,6844,~178mL,UV,39.38,0.05,0,end");
+                }
             }
         }
         if (command.equals("getfile")) {
@@ -259,9 +266,19 @@ public class ApEmulator implements Runnable {
             sendData("getwifi,OK,end"); //Unknown at the moment
         }
         if (command.equals("gopause")) {
+            if (printingFile != null) {
+                paused = true;
+            }
             sendData("gopause,OK,end"); //Unknown at the moment
         }
+        if (command.equals("gostop")) {
+            printingFile = null;
+            sendData("gostop,OK,end"); //Unknown at the moment
+        }
         if (command.equals("goresume")) {
+            if (printingFile != null) {
+                paused = false;
+            }
             sendData("goresume,OK,end"); //Unknown at the moment
         }
         if (command.equals("setname")) {
