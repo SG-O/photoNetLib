@@ -21,15 +21,15 @@ package de.sg_o.lib.photoNet.manager;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.printer.Discover;
 import de.sg_o.lib.photoNet.printer.Printer;
+import de.sg_o.lib.photoNet.printer.act.ActDiscover;
 import de.sg_o.lib.photoNet.printer.act.ActPrinter;
 import de.sg_o.lib.photoNet.printer.cbd.CbdDiscover;
 import de.sg_o.lib.photoNet.printer.cbd.CbdPrinter;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Environment {
-    private final Discover available;
+    private final LinkedList<Discover> available = new LinkedList<>();
     private final ArrayList<Printer> connected;
     private final int timeout;
 
@@ -57,8 +57,11 @@ public class Environment {
                 }
             }
         }
-        available = new CbdDiscover(timeout);
-        available.update();
+        available.add(new CbdDiscover(timeout));
+        available.add(new ActDiscover(timeout));
+        for (Discover d : available) {
+            d.update();
+        }
     }
 
     private Printer addPrinter(String ip, int timeout, NetIO.DeviceType type) {
@@ -82,16 +85,20 @@ public class Environment {
     }
 
     @SuppressWarnings("unused")
-    public Discover getDiscover() {
+    public LinkedList<Discover> getDiscover() {
         return available;
     }
 
     @SuppressWarnings("unused")
-    public TreeMap<String, String> notConnected() {
-        TreeMap<String, String> missing = new TreeMap<>();
-        if (!available.isValid()) return missing;
-        TreeMap<String, String> discovered = available.getDiscovered();
-        missing.putAll(discovered);
+    public TreeMap<String, Map.Entry<NetIO.DeviceType, String>> notConnected() {
+        TreeMap<String, Map.Entry<NetIO.DeviceType, String>> missing = new TreeMap<>();
+        for (Discover d : available) {
+            if (!d.isValid()) continue;
+            TreeMap<String, String> discovered = d.getDiscovered();
+            for (Map.Entry<String, String> e : discovered.entrySet()) {
+                missing.put(e.getKey(), new AbstractMap.SimpleImmutableEntry<>(d.getType(), e.getValue()));
+            }
+        }
         for (Printer p : connected) {
             missing.remove(p.getIp());
         }
@@ -101,10 +108,12 @@ public class Environment {
     @SuppressWarnings("unused")
     public Printer connect(String ip, NetIO.DeviceType type) {
         if (ip == null) return null;
-        if (available.isValid()) {
-            TreeMap<String, String> discovered = available.getDiscovered();
-            for (Printer p : connected) {
-                if (p.getIp().equals(ip)) return p;
+        for (Discover d : available) {
+            if (d.isValid()) {
+                TreeMap<String, String> discovered = d.getDiscovered();
+                for (Printer p : connected) {
+                    if (p.getIp().equals(ip)) return p;
+                }
             }
         }
         return addPrinter(ip, timeout, type);

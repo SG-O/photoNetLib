@@ -52,7 +52,15 @@ public class ApEmulator implements Runnable {
             ApEmulator emulator = new ApEmulator(6000, 10000);
             Thread runner = new Thread(emulator);
             runner.start();
+            ApEmulatorDiscovery discovery = new ApEmulatorDiscovery(48899, 10000);
+            Thread disco = new Thread(discovery);
+            disco.start();
             while (runner.isAlive()) {
+                //noinspection BusyWait
+                Thread.sleep(100);
+            }
+            discovery.stop();
+            while (disco.isAlive()) {
                 //noinspection BusyWait
                 Thread.sleep(100);
             }

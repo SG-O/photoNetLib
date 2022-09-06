@@ -16,26 +16,24 @@
  *
  */
 
-package de.sg_o.lib.photoNet.printer.cbd;
+package de.sg_o.lib.photoNet.printer.act;
 
 import de.sg_o.lib.photoNet.networkIO.NetIO;
-import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
+import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.printer.Discover;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class CbdDiscover extends Discover {
-    private static final Pattern pattern = Pattern.compile("MAC:(?<mac>[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+) IP:(?<ip>\\d+.\\d+.\\d+.\\d+) VER:(?<ver>V[0-9.]+) ID:(?<id>[0-9a-fA-F,]+) NAME:(?<name>\\S+)");
+public class ActDiscover extends Discover {
 
-    public CbdDiscover(int timeout) {
-        super(timeout, NetIO.DeviceType.CBD);
+    public ActDiscover(int timeout) {
+        super(timeout, NetIO.DeviceType.ACT);
     }
 
     public void run() {
@@ -46,9 +44,9 @@ public class CbdDiscover extends Discover {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
                 socket.setSoTimeout((timeout / 10) / broadcasts.size());
-                String discover = CbdCommands.systemInfo();
-                byte[] buffer = discover.getBytes();
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 3000);
+                String discover = ActCommands.BROADCAST_SEARCH_DATA;
+                byte[] buffer = discover.getBytes(StandardCharsets.US_ASCII);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 48899);
                 try {
                     socket.send(packet);
                 } catch (IOException e) {
@@ -64,15 +62,12 @@ public class CbdDiscover extends Discover {
                         continue;
                     }
                     if (response.getData() == null) continue;
-                    if (response.getData().length < 64) continue;
+                    if (response.getData().length < 20) continue;
                     String info = new String(response.getData());
-                    if (info.length() < 64) continue;
-                    Matcher m = pattern.matcher(info);
-                    while (m.find()) {
-                        if (m.groupCount() == 5) {
-                            discovered.put(response.getAddress().getHostAddress(), m.group("name"));
-                        }
-                    }
+                    if (info.length() < 20) continue;
+                    String[] split = info.split(",");
+                    if (split.length < 1) continue;
+                    discovered.put(response.getAddress().getHostAddress(), split[0].trim());
                 }
                 socket.close();
             }

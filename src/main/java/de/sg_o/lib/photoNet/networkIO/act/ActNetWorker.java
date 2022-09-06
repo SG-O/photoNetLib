@@ -171,7 +171,7 @@ public class ActNetWorker extends NetWorker {
             in.close();
             out.close();
             clientSocket.close();
-        } catch (IOException ignore) {
+        } catch (Exception ignore) {
         }
     }
 }

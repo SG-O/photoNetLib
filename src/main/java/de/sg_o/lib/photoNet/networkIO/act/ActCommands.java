@@ -53,6 +53,8 @@ public class ActCommands {
     public static String GET_MODE = "getmode";
     public static String GET_FIRMWARE = "getFirmware";
 
+    public static String BROADCAST_SEARCH_DATA = "www.usr.cn";
+
     public static String getName() {
         return simpleCommand(GET_NAME);
     }

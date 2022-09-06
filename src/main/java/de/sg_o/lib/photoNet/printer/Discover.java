@@ -18,6 +18,8 @@
 
 package de.sg_o.lib.photoNet.printer;
 
+import de.sg_o.lib.photoNet.networkIO.NetIO;
+
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -32,8 +34,11 @@ public abstract class Discover implements Runnable {
     protected TreeMap<String, String> discovered;
     protected Thread updateThread;
 
-    public Discover(int timeout) {
+    protected final NetIO.DeviceType type;
+
+    public Discover(int timeout, NetIO.DeviceType type) {
         this.timeout = timeout;
+        this.type = type;
     }
 
     public void update() {
@@ -58,6 +63,10 @@ public abstract class Discover implements Runnable {
 
     public TreeMap<String, String> getDiscovered() {
         return discovered;
+    }
+
+    public NetIO.DeviceType getType() {
+        return type;
     }
 
     protected static List<InetAddress> listAllBroadcastAddresses() throws SocketException {
