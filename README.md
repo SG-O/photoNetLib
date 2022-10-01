@@ -1,6 +1,6 @@
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[badge-all-contributors]: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
+[badge-all-contributors]: https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Maven Central](https://img.shields.io/maven-central/v/de.sg-o.lib/photoNet.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22de.sg-o.lib%22%20AND%20a:%22photoNet%22)
@@ -20,18 +20,15 @@ At the moment it supports the Chitu-Protocol and the Anycubic - Protocol (Mono S
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://github.com/SG-O"><img src="https://avatars.githubusercontent.com/u/1754351?v=4" width="100px;" alt=""/><br /><sub><b>SG-O</b></sub></a></td>
+      <td align="center"><a href="https://github.com/SG-O"><img src="https://avatars.githubusercontent.com/u/1754351?v=4" width="100px;" alt=""/><br /><sub><b>SG-O</b></sub></a><br />
+      <a href="https://github.com/SG-O/photoNet/commits?author=SG-O" title="Code">💻</a>
+      <a href="#design-SG-O" title="Design">🎨</a>
+       <a href="https://github.com/SG-O/photoNet/pulls?q=is%3Apr+reviewed-by%3SG-O" title="Reviewed Pull Requests">👀</a>
+      <a href="#userTesting-SG-O" title="User Testing">📓</a></td>
+      <td align="center"><img src="https://github.com/identicons/default.png" width="100px;" alt=""/><br /><sub><b>Brandon Stephenson</b></sub><br />
+      <a href="#userTesting" title="User Testing">📓</a></td>
     </tr>
   </tbody>
-  <tfoot>
-    <tr>
-      <td align="center" size="13px" colspan="7">
-        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
-          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
-        </img>
-      </td>
-    </tr>
-  </tfoot>
 </table>
 
 <!-- markdownlint-restore -->
