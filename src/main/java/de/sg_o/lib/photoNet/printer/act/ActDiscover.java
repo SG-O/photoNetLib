@@ -21,6 +21,8 @@ package de.sg_o.lib.photoNet.printer.act;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 import de.sg_o.lib.photoNet.printer.Discover;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class ActDiscover extends Discover {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActDiscover.class);
 
     public ActDiscover(int timeout) {
         super(timeout, NetIO.DeviceType.ACT);
@@ -40,6 +43,7 @@ public class ActDiscover extends Discover {
         try {
             discovered = new TreeMap<>();
             List<InetAddress> broadcasts = listAllBroadcastAddresses();
+            LOGGER.info("Broadcast interfaces: " + broadcasts);
             for (InetAddress address : broadcasts) {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
@@ -62,6 +66,7 @@ public class ActDiscover extends Discover {
                         continue;
                     }
                     if (response.getData() == null) continue;
+                    LOGGER.debug("Broadcast response from " + response.getAddress() + " with " + new String(response.getData(), StandardCharsets.US_ASCII).trim());
                     if (response.getData().length < 20) continue;
                     String info = new String(response.getData());
                     if (info.length() < 20) continue;

@@ -87,6 +87,10 @@ public class ActFileListItem extends FileListItem {
         return null;
     }
 
+    public String getRef() {
+        return ref;
+    }
+
     public long openFile() {
         return -1;
     }

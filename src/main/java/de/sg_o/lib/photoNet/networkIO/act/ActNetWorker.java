@@ -20,6 +20,8 @@ package de.sg_o.lib.photoNet.networkIO.act;
 
 import de.sg_o.lib.photoNet.networkIO.NetRequestResponse;
 import de.sg_o.lib.photoNet.networkIO.NetWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,6 +31,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ActNetWorker extends NetWorker {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActNetWorker.class);
     private final int timeout;
     private final byte[] buf = new byte[2048];
     private Socket clientSocket;
@@ -71,6 +75,7 @@ public class ActNetWorker extends NetWorker {
                     active.setResponse(null);
                     if (!e.getMessage().equals("Read timed out")) {
                         isConnected = false;
+                        LOGGER.info(e.getMessage());
                     }
                 }
                 synchronized (this) {
@@ -85,6 +90,7 @@ public class ActNetWorker extends NetWorker {
         try {
             clientSocket = new Socket();
             InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
+            LOGGER.debug("Connecting to " + inetSocketAddress);
             clientSocket.connect(inetSocketAddress, timeout);
             clientSocket.setSoTimeout(timeout);
             clientSocket.sendUrgentData(255);
@@ -117,6 +123,7 @@ public class ActNetWorker extends NetWorker {
 
     private void send(NetRequestResponse request) throws IOException {
         int expectedLength = request.getExpectedLength();
+        LOGGER.debug("Request: " + new String(request.getRequest(), "GBK"));
         out.write(request.getRequest());
         out.flush();
         long start = System.currentTimeMillis();
@@ -149,6 +156,7 @@ public class ActNetWorker extends NetWorker {
                 if (result.contains(",end")) {
                     byte[] out = new byte[glide];
                     System.arraycopy(buf, 0, out, 0, glide);
+                    LOGGER.debug("Response: " + new String(out, "GBK"));
                     request.setResponse(out);
                     return;
                 }
@@ -158,6 +166,7 @@ public class ActNetWorker extends NetWorker {
                 multiPacketOffset += glide;
                 glide = 0;
                 if (multiPacketOffset >= expectedLength) {
+                    LOGGER.debug("Response: BINARY");
                     request.setResponse(multiPacket);
                     return;
                 }

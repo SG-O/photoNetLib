@@ -20,14 +20,19 @@ package de.sg_o.lib.photoNet.networkIO.cbd;
 
 import de.sg_o.lib.photoNet.networkIO.NetRequestResponse;
 import de.sg_o.lib.photoNet.networkIO.NetWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 
 public class CbdNetWorker extends NetWorker {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CbdNetWorker.class);
     private final DatagramSocket socket;
 
     private final byte[] buf = new byte[2048];
@@ -58,6 +63,7 @@ public class CbdNetWorker extends NetWorker {
                 try {
                     send(active);
                 } catch (IOException e) {
+                    LOGGER.info(e.getMessage());
                     active.setError(e.getMessage());
                     active.setResponse(null);
                 }
@@ -69,6 +75,9 @@ public class CbdNetWorker extends NetWorker {
     }
 
     private void send(NetRequestResponse request) throws IOException {
+        if (request.getRequest().length < 64) {
+            LOGGER.debug("Request: " + new String(request.getRequest(), StandardCharsets.US_ASCII));
+        }
         DatagramPacket packet = new DatagramPacket(request.getRequest(), request.getRequest().length, address, port);
         DatagramPacket response = new DatagramPacket(buf, 0, buf.length);
         socket.send(packet);
@@ -80,16 +89,21 @@ public class CbdNetWorker extends NetWorker {
                 if (multiPacket == null) {
                     data = new byte[response.getLength() - 2];
                     System.arraycopy(buf, 2, data, 0, data.length);
+                    LOGGER.debug("Single Packet Response: " + new String(data, StandardCharsets.US_ASCII));
                 } else {
                     data = new byte[multiPacket.length + (response.getLength() - 2)];
                     System.arraycopy(multiPacket, 0, data, 0, multiPacket.length);
                     System.arraycopy(buf, 2, data, multiPacket.length, response.getLength() - 2);
+                    if (data.length < 128) {
+                        LOGGER.debug("Multi Packet Response: " + new String(data, StandardCharsets.US_ASCII));
+                    }
                 }
                 request.setResponse(data);
                 return;
             }
             if ((buf[0] == 0x45) && (buf[1] == 0x72) && (buf[2] == 0x72) && (buf[3] == 0x6F) && (buf[4] == 0x72) && ((buf[5] == 0x3A) || (buf[5] == 0x2C))) {
                 byte[] data = new byte[response.getLength() - 6];
+                LOGGER.debug("Error Response: " + new String(data, StandardCharsets.US_ASCII));
                 System.arraycopy(buf, 6, data, 0, data.length);
                 request.setError(new String(data));
                 request.setResponse(null);
@@ -97,6 +111,7 @@ public class CbdNetWorker extends NetWorker {
             }
             if (response.getLength() != 17 && multiPacket == null) {
                 if (!new String(buf).trim().startsWith("Begin file list")) {
+                    LOGGER.debug("File List Response");
                     byte[] data = new byte[response.getLength()];
                     System.arraycopy(buf, 0, data, 0, data.length);
                     request.setResponse(data);
@@ -105,8 +120,10 @@ public class CbdNetWorker extends NetWorker {
             }
             int destPos = 0;
             if (multiPacket == null) {
+                LOGGER.debug("Multi Packet Start");
                 multiPacket = new byte[response.getLength()];
             } else {
+                LOGGER.debug("Multi Packet Add");
                 byte[] tmp = multiPacket;
                 destPos = tmp.length;
                 multiPacket = new byte[tmp.length + response.getLength()];

@@ -100,6 +100,7 @@ public class ApEmulator implements Runnable {
             System.arraycopy(buf, 0, ret, 0, ret.length);
             return ret;
         }
+        if (read < 0) throw new IOException("Closed");
         return null;
     }
 
@@ -150,6 +151,34 @@ public class ApEmulator implements Runnable {
             String file = generateFileWithAlias(fileList[i], i);
             if (file == null) continue;
             out.append(file);
+            out.append(",");
+        }
+        return out.toString();
+    }
+
+    private String generateHistory() {
+        //,40/Orbiter v2.0-Mount-Duet_MFM_w_Dumbboard/4.pwms/9204986/213/1269/13/45.0/3.0,41/Orbiter v2.0-Mount-Duet_MFM_w_Dumbboard/4.pwms/9204986/194/1269/13/45.0/2.19,42/v1.2_Orbiter v2.0-Mount-Duet_MFM_w_Dumb/17.pwms/9346725/194/1269/13/45.0/2.19,end
+        StringBuilder out = new StringBuilder();
+        if (fileList == null) return "ERROR1,"; //No Usb Stick
+        if (fileList.length < 1) return "ERROR2,"; //NoFiles
+        for (int i = 0; i < fileList.length; i++) {
+            String file = generateFileWithAlias(fileList[i], i);
+            if (file == null) continue;
+            out.append(i);
+            out.append("/");
+            out.append(file);
+            out.append("/");
+            out.append(9204986); // File Size bytes
+            out.append("/");
+            out.append(213); //Time min
+            out.append("/");
+            out.append(1269); //Layers
+            out.append("/");
+            out.append(13); //Resin ml
+            out.append("/");
+            out.append(45.0f); //Bottom Exposure
+            out.append("/");
+            out.append(3.0f); //Layer Exposure
             out.append(",");
         }
         return out.toString();
@@ -211,6 +240,9 @@ public class ApEmulator implements Runnable {
         if (command.equals("getPreview2")) {
             return 1;
         }
+        if (command.equals("getPreview1")) {
+            return 1;
+        }
         if (command.equals("setname")) {
             return 1;
         }
@@ -261,8 +293,11 @@ public class ApEmulator implements Runnable {
                 sendData(generatePreview(parameter[0]));
             }
         }
+        if (command.equals("getPreview1")) {
+            sendData("getPreview1,OK,end");
+        }
         if (command.equals("gethistory")) {
-            sendData("gethistory," + generateFileList() + "end");
+            sendData("gethistory," + generateHistory() + "end");
         }
         if (command.equals("delhistory")) {
             sendData("delhistory,OK,end");
@@ -351,6 +386,12 @@ public class ApEmulator implements Runnable {
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
+                try {
+                    close();
+                } catch (IOException ignore) {
+                }
+                while (!acceptClient()) {
+                }
             }
         }
         try {

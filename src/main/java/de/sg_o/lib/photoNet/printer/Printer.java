@@ -88,6 +88,10 @@ public abstract class Printer {
         return id;
     }
 
+    public NetIO getNetIo() {
+        return io;
+    }
+
     public NetIO.DeviceType getDeviceType() {
         return io.getDeviceType();
     }

@@ -21,11 +21,14 @@ package de.sg_o.lib.photoNet.printer.cbd;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.networkIO.cbd.CbdCommands;
 import de.sg_o.lib.photoNet.printer.Discover;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -33,6 +36,7 @@ import java.util.regex.Pattern;
 
 public class CbdDiscover extends Discover {
     private static final Pattern pattern = Pattern.compile("MAC:(?<mac>[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9a-fA-F]+) IP:(?<ip>\\d+.\\d+.\\d+.\\d+) VER:(?<ver>V[0-9.]+) ID:(?<id>[0-9a-fA-F,]+) NAME:(?<name>\\S+)");
+    private static final Logger LOGGER = LoggerFactory.getLogger(CbdDiscover.class);
 
     public CbdDiscover(int timeout) {
         super(timeout, NetIO.DeviceType.CBD);
@@ -42,6 +46,7 @@ public class CbdDiscover extends Discover {
         try {
             discovered = new TreeMap<>();
             List<InetAddress> broadcasts = listAllBroadcastAddresses();
+            LOGGER.info("Broadcast interfaces: " + broadcasts);
             for (InetAddress address : broadcasts) {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
@@ -64,6 +69,7 @@ public class CbdDiscover extends Discover {
                         continue;
                     }
                     if (response.getData() == null) continue;
+                    LOGGER.debug("Broadcast response from " + response.getAddress() + " with " + new String(response.getData(), StandardCharsets.US_ASCII).trim());
                     if (response.getData().length < 64) continue;
                     String info = new String(response.getData());
                     if (info.length() < 64) continue;
