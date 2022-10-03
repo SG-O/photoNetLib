@@ -1,5 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# This workflow will build and test a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 
 name: Java CI with Maven
 
@@ -24,3 +23,12 @@ jobs:
         cache: maven
     - name: Run texts
       run: mvn -B test
+    - name: Publish test coverage results
+      uses: PavanMudigonda/jacoco-reporter@v4.5
+      with:
+        coverage_results_path: 'target/site/jacoco/jacoco.xml'
+        coverage_report_title: 'Test coverage results'
+        coverage_report_name: 'Test coverage results'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        minimum_coverage: 80
+        fail_below_threshold: false
