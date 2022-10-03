@@ -33,7 +33,6 @@ jobs:
     - name: Run texts
       run: mvn -B test
     - name: Publish test coverage results
-      if: ${{ github.event_name != 'pull_request' }}
       uses: PavanMudigonda/jacoco-reporter@v4.5
       with:
         coverage_results_path: 'target/site/jacoco/jacoco.xml'
