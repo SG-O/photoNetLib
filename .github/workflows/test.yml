@@ -22,11 +22,6 @@ jobs:
         cache: maven
     - name: Run texts
       run: mvn -B test
-    
-  coverage:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
     - name: Publish test coverage results
       uses: PavanMudigonda/jacoco-reporter@v4.5
       with:
