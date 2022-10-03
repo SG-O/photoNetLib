@@ -29,6 +29,7 @@ jobs:
     - name: Run texts
       run: mvn -B test
     - name: Publish test coverage results
+      if: ${{ github.event_name != 'pull_request' }}
       uses: PavanMudigonda/jacoco-reporter@v4.5
       with:
         coverage_results_path: 'target/site/jacoco/jacoco.xml'
@@ -47,7 +48,6 @@ jobs:
         min-coverage-overall: 40
         min-coverage-changed-files: 80
     - name: Generate JaCoCo Badge
-      if: ${{ github.event_name != 'pull_request' }}
       uses: cicirello/jacoco-badge-generator@v2.7.0
       with:
         jacoco-csv-file: target/site/jacoco/jacoco.csv
