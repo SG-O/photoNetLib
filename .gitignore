@@ -1,2 +1,5 @@
 /target/
 /src/test/java/de/sg_o/lib/photoNet/
+/mvnw
+/mvnw.cmd
+/.mvn/
