@@ -43,8 +43,8 @@ jobs:
           coverage_report_name: 'Test coverage results'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 80
-        fail_below_threshold: false
-        publish_only_summary: true
+          fail_below_threshold: false
+          publish_only_summary: true
       - name: Add coverage to PR
         if: ${{ github.event_name == 'pull_request'}}
         uses: madrapps/jacoco-report@v1.3
