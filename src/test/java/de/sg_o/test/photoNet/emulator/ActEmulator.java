@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ApEmulator implements Runnable {
+public class ActEmulator implements Runnable {
     private static final int PREVIEW_WIDTH = 224;
     private static final int PREVIEW_HEIGHT = 168;
 
@@ -43,17 +43,17 @@ public class ApEmulator implements Runnable {
     private boolean paused = false;
     private boolean finished = false;
 
-    public ApEmulator(int port, int timeout) throws IOException {
+    public ActEmulator(int port, int timeout) throws IOException {
         serverSocket = new ServerSocket(port);
         serverSocket.setSoTimeout(timeout);
     }
 
     public static void main(String[] args) {
         try {
-            ApEmulator emulator = new ApEmulator(6000, 10000);
+            ActEmulator emulator = new ActEmulator(6000, 10000);
             Thread runner = new Thread(emulator);
             runner.start();
-            ApEmulatorDiscovery discovery = new ApEmulatorDiscovery(48899, 10000);
+            ActEmulatorDiscovery discovery = new ActEmulatorDiscovery(48899, 10000);
             Thread disco = new Thread(discovery);
             disco.start();
             while (runner.isAlive()) {
@@ -403,6 +403,7 @@ public class ApEmulator implements Runnable {
                     close();
                 } catch (IOException ignore) {
                 }
+                //noinspection StatementWithEmptyBody
                 while (!acceptClient()) {
                 }
             }

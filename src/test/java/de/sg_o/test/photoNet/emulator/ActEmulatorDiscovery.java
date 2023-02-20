@@ -26,14 +26,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ApEmulatorDiscovery implements Runnable {
+public class ActEmulatorDiscovery implements Runnable {
 
     private final DatagramSocket serverSocket;
     private final byte[] buffer = new byte[256];
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    public ApEmulatorDiscovery(int port, int timeout) throws IOException {
+    public ActEmulatorDiscovery(int port, int timeout) throws IOException {
         serverSocket = new DatagramSocket(port);
         serverSocket.setSoTimeout(timeout);
     }
