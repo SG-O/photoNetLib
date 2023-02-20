@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ActProtocolTest {
 
+    @SuppressWarnings("BusyWait")
     @Test
     void emulatorTest() throws IOException, InterruptedException {
         ApEmulator emulator = new ApEmulator(6000, 10000);
@@ -126,6 +127,32 @@ public class ActProtocolTest {
         assert ((103.1 - Math.abs(p.getStatus().getZ())) < 0.01);
         assert ((0.88 - Math.abs(p.getStatus().getProgress())) < 0.01);
         assertEquals(new PrintTime(6844), p.getStatus().getTime());
+        p.pause();
+        while (!p.getStatus().isUpdated()) {
+            Thread.sleep(100);
+        }
+        assertEquals(Status.State.PAUSE, p.getStatus().getState());
+
+        emulator.finishPrint();
+        p.update();
+        while (!p.getStatus().isUpdated()) {
+            Thread.sleep(100);
+        }
+        assertEquals(Status.State.FINISHED, p.getStatus().getState());
+
+        model2.print();
+
+        while (!p.getStatus().isUpdated()) {
+            Thread.sleep(100);
+        }
+        assertEquals(Status.State.PRINTING, p.getStatus().getState());
+        assertEquals("Model2.pwmb", p.getStatus().getOpenedFile());
+
+        p.stop();
+        while (!p.getStatus().isUpdated()) {
+            Thread.sleep(100);
+        }
+        assertEquals(Status.State.FINISHED, p.getStatus().getState());
         model2.delete();
 
         emulator.close();
