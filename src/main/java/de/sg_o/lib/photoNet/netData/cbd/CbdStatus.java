@@ -18,13 +18,14 @@
 
 package de.sg_o.lib.photoNet.netData.cbd;
 
+import de.sg_o.lib.photoNet.netData.PrintTime;
 import de.sg_o.lib.photoNet.netData.Status;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CbdStatus extends Status {
-    private static final Pattern pattern = Pattern.compile("B:\\d+/\\d+ E1:\\d+/\\d+ E2:\\d+/\\d+ X:-?\\d+.\\d+ Y:-?\\d+.\\d+ Z:(?<z>-?\\d+.\\d+) F:\\d+/\\d+ D:(?<current>\\d+)/(?<total>\\d+)/\\d+ T:(?<time>\\d+)");
+    private static final Pattern pattern = Pattern.compile("B:\\d+/\\d+ E1:\\d+/\\d+ E2:\\d+/\\d+ X:-?\\d+.\\d+ Y:-?\\d+.\\d+ Z:(?<z>-?\\d+.\\d+) F:\\d+/\\d+ D:(?<current>\\d+)/(?<total>\\d+)/(?<paused>\\d+) T:(?<time>\\d+)");
     private static final Pattern filePattern = Pattern.compile("'(?<name>[^']+)'");
 
     public CbdStatus() {
@@ -40,11 +41,11 @@ public class CbdStatus extends Status {
         if (response == null) return;
         Status.State oldState = state;
         float oldProgress = progress;
-        int oldTime = time;
+        PrintTime oldTime = time;
         float oldZ = z;
         Matcher m = pattern.matcher(response);
         while (m.find()) {
-            if (m.groupCount() == 4) {
+            if (m.groupCount() == 5) {
                 this.z = Float.parseFloat(m.group("z"));
                 float total = Float.parseFloat(m.group("total"));
                 if (total > 0.0f) {
@@ -52,9 +53,14 @@ public class CbdStatus extends Status {
                 } else {
                     this.progress = 0.0f;
                 }
-                this.time = Integer.parseInt(m.group("time"));
-                if (this.time > 0) {
-                    this.state = Status.State.PRINTING;
+                this.time = new PrintTime(Long.parseLong(m.group("time")));
+                boolean paused = "1".equals(m.group("paused"));
+                if (this.time.getTime() > 0L) {
+                    if (paused) {
+                        this.state = Status.State.PAUSE;
+                    } else {
+                        this.state = Status.State.PRINTING;
+                    }
                 } else if (this.state == Status.State.PRINTING || this.state == Status.State.FINISHED) {
                     this.state = Status.State.FINISHED;
                 } else {

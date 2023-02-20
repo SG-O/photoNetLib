@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ApEmulator implements Runnable {
+public class ActEmulator implements Runnable {
     private static final int PREVIEW_WIDTH = 224;
     private static final int PREVIEW_HEIGHT = 168;
 
@@ -41,18 +41,19 @@ public class ApEmulator implements Runnable {
     //private final String[] fileList = {};
     private String printingFile = null;
     private boolean paused = false;
+    private boolean finished = false;
 
-    public ApEmulator(int port, int timeout) throws IOException {
+    public ActEmulator(int port, int timeout) throws IOException {
         serverSocket = new ServerSocket(port);
         serverSocket.setSoTimeout(timeout);
     }
 
     public static void main(String[] args) {
         try {
-            ApEmulator emulator = new ApEmulator(6000, 10000);
+            ActEmulator emulator = new ActEmulator(6000, 10000);
             Thread runner = new Thread(emulator);
             runner.start();
-            ApEmulatorDiscovery discovery = new ApEmulatorDiscovery(48899, 10000);
+            ActEmulatorDiscovery discovery = new ActEmulatorDiscovery(48899, 10000);
             Thread disco = new Thread(discovery);
             disco.start();
             while (runner.isAlive()) {
@@ -67,6 +68,12 @@ public class ApEmulator implements Runnable {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void finishPrint() {
+        this.finished = true;
+        printingFile = null;
+        paused = false;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -258,7 +265,9 @@ public class ApEmulator implements Runnable {
             sendData("getmode,0,end");
         }
         if (command.equals("getstatus")) {
-            if (printingFile == null) {
+            if (finished) {
+                sendData("getstatus,finish,end");
+            } else if (printingFile == null) {
                 sendData("getstatus,stop,end");
             } else {
                 if (paused) {
@@ -280,6 +289,8 @@ public class ApEmulator implements Runnable {
                 sendData("goprint,ERROR1,end");
             } else {
                 printingFile = parameter[0];
+                finished = false;
+                paused = false;
                 sendData("goprint,OK,end");
             }
         }
@@ -316,6 +327,8 @@ public class ApEmulator implements Runnable {
         }
         if (command.equals("gostop")) {
             printingFile = null;
+            finished = false;
+            paused = false;
             sendData("gostop,OK,end"); //Unknown at the moment
         }
         if (command.equals("goresume")) {
@@ -390,6 +403,7 @@ public class ApEmulator implements Runnable {
                     close();
                 } catch (IOException ignore) {
                 }
+                //noinspection StatementWithEmptyBody
                 while (!acceptClient()) {
                 }
             }

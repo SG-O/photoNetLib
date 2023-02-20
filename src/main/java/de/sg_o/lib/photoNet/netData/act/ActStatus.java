@@ -18,6 +18,7 @@
 
 package de.sg_o.lib.photoNet.netData.act;
 
+import de.sg_o.lib.photoNet.netData.PrintTime;
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.act.ActCommands;
 
@@ -41,7 +42,7 @@ public class ActStatus extends Status {
 
         State oldState = state;
         float oldProgress = progress;
-        int oldTime = time;
+        PrintTime oldTime = time;
         float oldZ = z;
         String oldFile = openedFile;
 
@@ -73,7 +74,7 @@ public class ActStatus extends Status {
             updated = true;
         }
         if (progress != oldProgress) updated = true;
-        if (time != oldTime) updated = true;
+        if (!time.equals(oldTime)) updated = true;
         if (z != oldZ) updated = true;
         if (openedFile == null) {
             if (oldFile != null) updated = true;
@@ -89,7 +90,7 @@ public class ActStatus extends Status {
             openedFile = split[0];
         }
         progress = (float) Integer.parseInt(data[4]) / 100.0f;
-        time = Integer.parseInt(data[7]);
+        time = new PrintTime(Long.parseLong(data[7]));
         if (data.length > 11) {
             z = Integer.parseInt(data[5]) * Float.parseFloat(data[11]);
         }
@@ -97,7 +98,7 @@ public class ActStatus extends Status {
 
     private void setNull() {
         this.progress = 0;
-        this.time = 0;
+        this.time = new PrintTime(0);
         this.z = 0;
         this.openedFile = null;
     }
