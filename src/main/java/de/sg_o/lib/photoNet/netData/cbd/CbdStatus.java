@@ -18,6 +18,7 @@
 
 package de.sg_o.lib.photoNet.netData.cbd;
 
+import de.sg_o.lib.photoNet.netData.PrintTime;
 import de.sg_o.lib.photoNet.netData.Status;
 
 import java.util.regex.Matcher;
@@ -40,7 +41,7 @@ public class CbdStatus extends Status {
         if (response == null) return;
         Status.State oldState = state;
         float oldProgress = progress;
-        int oldTime = time;
+        PrintTime oldTime = time;
         float oldZ = z;
         Matcher m = pattern.matcher(response);
         while (m.find()) {
@@ -52,8 +53,8 @@ public class CbdStatus extends Status {
                 } else {
                     this.progress = 0.0f;
                 }
-                this.time = Integer.parseInt(m.group("time"));
-                if (this.time > 0) {
+                this.time = new PrintTime(Long.parseLong(m.group("time")));
+                if (this.time.getTime() > 0L) {
                     this.state = Status.State.PRINTING;
                 } else if (this.state == Status.State.PRINTING || this.state == Status.State.FINISHED) {
                     this.state = Status.State.FINISHED;

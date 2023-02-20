@@ -21,7 +21,7 @@ package de.sg_o.lib.photoNet.netData;
 public abstract class Status {
     protected State state = State.UNKNOWN;
     protected float progress = 0.0f;
-    protected int time = 0;
+    protected PrintTime time = new PrintTime(0);
     protected float z = 0.0f;
     protected boolean updated = false;
     protected boolean cameOnline = false;
@@ -38,7 +38,7 @@ public abstract class Status {
         this.state = State.OFFLINE;
         this.z = Float.NaN;
         this.progress = Float.NaN;
-        this.time = 0;
+        this.time = new PrintTime(0);
         updated = true;
     }
 
@@ -71,7 +71,7 @@ public abstract class Status {
     }
 
     @SuppressWarnings("unused")
-    public int getTime() {
+    public PrintTime getTime() {
         return time;
     }
 

@@ -21,6 +21,7 @@ package de.sg_o.test.photoNet.printer.act;
 import de.sg_o.lib.photoNet.manager.Environment;
 import de.sg_o.lib.photoNet.netData.FileListItem;
 import de.sg_o.lib.photoNet.netData.FolderList;
+import de.sg_o.lib.photoNet.netData.PrintTime;
 import de.sg_o.lib.photoNet.netData.Status;
 import de.sg_o.lib.photoNet.networkIO.NetIO;
 import de.sg_o.lib.photoNet.printFile.PrintFilePreview;
@@ -67,7 +68,7 @@ public class ActProtocolTest {
         assertNull(p.getStatus().getOpenedFile());
         assert (Math.abs(p.getStatus().getZ()) < 0.01);
         assert (Math.abs(p.getStatus().getProgress()) < 0.01);
-        assertEquals(0, p.getStatus().getTime());
+        assertEquals(new PrintTime(0), p.getStatus().getTime());
 
         p.setName("NewName");
         p.update();
@@ -124,7 +125,7 @@ public class ActProtocolTest {
         assertEquals("Model2.pwmb", p.getStatus().getOpenedFile());
         assert ((103.1 - Math.abs(p.getStatus().getZ())) < 0.01);
         assert ((0.88 - Math.abs(p.getStatus().getProgress())) < 0.01);
-        assertEquals(6844, p.getStatus().getTime());
+        assertEquals(new PrintTime(6844), p.getStatus().getTime());
         model2.delete();
 
         emulator.close();
