@@ -28,7 +28,7 @@ public class FileRead {
     }
 
     public static long readLong(byte[] file, int offset) {
-        return ((long) (readInt(file, offset)) << 32) + (readInt(file, offset + 1) & 0xFFFFFFFFL);
+        return ((long) (readInt(file, offset)) << 32) | (readInt(file, offset + 4) & 0xFFFFFFFFL);
     }
 
     public static float readFloat(byte[] file, int offset) {
