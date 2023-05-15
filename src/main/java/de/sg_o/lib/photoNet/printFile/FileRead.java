@@ -18,6 +18,9 @@
 
 package de.sg_o.lib.photoNet.printFile;
 
+/**
+ * Helper methods to extract data from little endian encoded byte arrays.
+ */
 public class FileRead {
     public static int readInt(byte[] file, int offset) {
         int ch1 = file[offset] & 0xFF;
@@ -28,7 +31,7 @@ public class FileRead {
     }
 
     public static long readLong(byte[] file, int offset) {
-        return ((long) (readInt(file, offset)) << 32) + (readInt(file, offset + 1) & 0xFFFFFFFFL);
+        return ((long) (readInt(file, offset + 4)) << 32) | (readInt(file, offset) & 0xFFFFFFFFL);
     }
 
     public static float readFloat(byte[] file, int offset) {
