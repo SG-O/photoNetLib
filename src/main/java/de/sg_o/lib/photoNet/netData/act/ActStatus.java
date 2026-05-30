@@ -45,7 +45,7 @@ public class ActStatus extends Status {
         PrintTime oldTime = time;
         float oldZ = z;
         String oldFile = openedFile;
-
+        split[1] = split[1].trim();
         if (split[1].equals(ActCommands.Values.STOP.toString())) {
             if (this.state == State.PRINTING || this.state == State.FINISHED) {
                 this.state = State.FINISHED;

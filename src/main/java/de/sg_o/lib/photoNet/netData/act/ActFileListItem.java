@@ -76,7 +76,9 @@ public class ActFileListItem extends FileListItem {
             while (!print.isExecuted()) {
                 Thread.sleep(100);
             }
-            if (print.isError()) return null;
+            if (print.isError()) {
+                return null;
+            }
             byte[] data = print.getResponse();
             if (data == null) return null;
             PwPrintFilePreview preview = new PwPrintFilePreview();

@@ -103,6 +103,7 @@ public class ActNetWorker extends NetWorker {
                 out.flush();
                 byte[] tmp = new byte[16];
                 while (in.read(tmp) > 0) {
+                    if (new String(tmp, "GBK").contains("getmode,0,end")) break;
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException ignore) {
@@ -123,7 +124,9 @@ public class ActNetWorker extends NetWorker {
 
     private void send(NetRequestResponse request) throws IOException {
         int expectedLength = request.getExpectedLength();
-        LOGGER.debug("Request: " + new String(request.getRequest(), "GBK"));
+        String requestString = new String(request.getRequest(), "GBK");
+        LOGGER.debug("Request: " + requestString);
+        String command = requestString.split(",")[0];
         out.write(request.getRequest());
         out.flush();
         long start = System.currentTimeMillis();
@@ -151,18 +154,36 @@ public class ActNetWorker extends NetWorker {
             }
             fail = 0;
             glide += read;
-            if (expectedLength < 1) {
-                String result = new String(buf, 0, glide, "GBK");
-                if (result.contains(",end")) {
+            String result = new String(buf, 0, glide, "GBK");
+            if (result.contains(",end") && multiPacketOffset == 0) {
+                if (result.contains(",ERROR")){
+                    String[] split = result.split(",");
+                    if (split[0].equals(command)) {
+                        if (!split[2].equals(ActCommands.Values.END.toString())) {
+                            LOGGER.warn("Got invalid response: " + result);
+                            request.setError("Invalid response");
+                            return;
+                        }
+                        LOGGER.warn("Got error: " + split[1]);
+                        request.setError(split[1]);
+                        return;
+                    } else if (expectedLength < 1) {
+                        LOGGER.warn("Got response to wrong command: " + result);
+                        request.setError("Got response to wrong command");
+                        return;
+                    }
+                } else if (expectedLength < 1) {
                     byte[] out = new byte[glide];
                     System.arraycopy(buf, 0, out, 0, glide);
                     LOGGER.debug("Response: " + new String(out, "GBK"));
                     request.setResponse(out);
                     return;
                 }
-            } else {
+            }
+            if (expectedLength > 0) {
                 start = System.currentTimeMillis();
                 System.arraycopy(buf, 0, multiPacket, multiPacketOffset, Math.min(glide, multiPacket.length - multiPacketOffset));
+                LOGGER.debug("Got " + glide + "bytes");
                 multiPacketOffset += glide;
                 glide = 0;
                 if (multiPacketOffset >= expectedLength) {
